@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa&display=swap');
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  height: 100%;
+}
+
+.App {
+  text-align: center;
+  font-family: Comfortaa;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.appfooter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.appfooter footer {
+  width: 100%;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.apptop {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+.apptop #topbar{
+  padding-left: 2vw;
+  padding-right: 2vw;
+}
+.modal {
+  z-index: 2;
+}
+.modal-title {
+  width: 100%;
+}
+
+.zoom {
+  padding: 10px;
+  transition: transform .2s; /* Animation */
+}
+
+.zoom img {
+  padding: 1px;
+  padding-top: 0px;
+}
+.zoom:hover {
+transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}
+.items {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  background-color: #454343 !important;
+  color: white;
+  width: 350px;
+  max-height: 500px;
+}
+
+.article {
+  text-align: left;
+  width: 60%;
+}
+.article h1{
+  margin-top: 1rem;
+  text-align: center;
+}
+.article form div {
+  margin-bottom: 1rem;
+}
+.lbl {
+  font-weight: bold;
+}
+#totalprice {
+  color: limegreen;
+  font-weight: bold;
+}
+
+.apptop nav .form-inline button{
+  margin: 0.5vw;
+}
+
+.apptop nav .form-inline button i{
+  margin-right: 0.5vw;
+}
+.apptop nav .form-inline button:last-child i{
+  margin-right: 0px;
+}
+
+.apptop button .bi {
+  font-size: 22px;
+}
+
+.content {
+  height: 100%;
+}
+
+.appcontent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2vw;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.table {
+  height: fit-content;
+}
+.table th{
+  font-size: calc(0.4px + min(1.5vw, 20px));
+}
+.table td, .table .btn {
+  font-size: calc(3px + min(1.5vw, 20px));
+  vertical-align: middle;
+}
+.table td img {
+  width: 100%;
+}
+
+.appbanner {
+  background-color: #C7F2E3;
+}
+
+.appbanner img {
+  width: 15%;
+  min-width: 150px;
+}
+
+.appmenu {
+  height: fit-content;
+  background-color: #FFA1B5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appmenu .navbar {
+  width: 60%;
+}
+
+.appmenu .navbar .nav-item {
+  width: 100%;
+  font-weight: bold;
+}
+.appmenu .navbar .btn{
+  width: 100%;
+  color: white;
+  font-weight: bold;
+  border: 3px solid #FFA1B5;
+}
+.appmenu .navbar .btn:hover{
+  background-color: #D90052;
+  border: 3px solid #b50447;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+.form-group {
+  margin-bottom: 10px;
+}
+
+.navbar-nav, .navbar-collapse {
+  width: 100%;
+}
+.navbar-toggler {
+  border: 3px solid white;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
