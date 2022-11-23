@@ -1,6 +1,10 @@
+import { useCallback, useEffect } from 'react';
 import {Modal, Button} from 'react-bootstrap';
 import { useForm, FormProvider } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 import LabelInput from '../components/FormComponents';
+import { useLogin, useSession } from '../contexts/AuthProvider';
+import { useConfirm, useError } from '../contexts/DialogProvider';
 
 export default function Modals({showModal, setShowModal}) {
   const { showSignIn, showSignUp } = showModal;
@@ -9,6 +13,7 @@ export default function Modals({showModal, setShowModal}) {
     <>
       <SignUp show={showSignUp} handleClose={() => setShowSignUp(false)}/>
       <SignIn show={showSignIn} handleClose={() => setShowSignIn(false)}/>
+      <Error/>
     </>
   );
 }
@@ -92,10 +97,14 @@ function SignUp({show, handleClose}) {
 
 function SignIn({show, handleClose}) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const login = useLogin();
+  const { loading, error } = useSession();
 
-  const onSumbit = (data) => {
-    console.log(JSON.stringify(data));
-  }
+  const onSumbit = useCallback(async (data) => {
+    const success = await login(data.user, data.pass);
+    
+    if(success) handleClose();
+  }, [login, handleClose]);
 
   const validationRules = {
     user: {
@@ -125,13 +134,20 @@ function SignIn({show, handleClose}) {
                 name="pass"
                 type="password"
                 validationRules={validationRules}
-              />                                
+              />          
+              {
+						    error ? (
+							    <p className="text-red-500">
+								    {error}
+							    </p>
+						    ) : null
+					    }                      
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="primary" type='submit'>
+            <Button variant="primary" type='submit' disabled={loading}>
               Sign in
             </Button>
           </Modal.Footer>
@@ -139,4 +155,30 @@ function SignIn({show, handleClose}) {
       </FormProvider>
     </Modal>
   );
+}
+
+export function Error() {
+  const { showError, setShowError, message } = useError();
+
+  return (<Modal show={showError} onHide={() => setShowError(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Error</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <label>{message}</label>
+      </Modal.Body>
+  </Modal>);
+}
+
+export function Confirm() {
+  const { showConfirm, setShowConfirm, message } = useConfirm();
+
+  return (<Modal show={showConfirm} onHide={() => setShowConfirm(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Error</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <label>{message}</label>
+      </Modal.Body>
+  </Modal>);
 }

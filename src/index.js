@@ -6,13 +6,19 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { AuthProvider } from './contexts/AuthProvider';
+import { DialogProvider } from './contexts/DialogProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App/>
-    </BrowserRouter>
+    <DialogProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <App/>
+      </BrowserRouter>
+    </AuthProvider>
+    </DialogProvider>
   </React.StrictMode>
 );
 

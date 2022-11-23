@@ -10,6 +10,9 @@ import Modals from './modals/Modals';
 import Article from './pages/Article';
 import { PRICEDATA } from './api/mock-data';
 import Cart from './pages/Cart';
+import PrivateRoute from './components/PrivateRoute';
+import dialogs from './dialogs';
+import { useLogout, useSession } from './contexts/AuthProvider';
 
 function Menu({display, handleClick}) {
   return (
@@ -44,6 +47,9 @@ function App() {
   const handleClick = (e) => {
     navigate('/' + e.currentTarget.name);
   }
+
+  const { ready, user } = useSession();
+  const logout = useLogout();
 
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
@@ -82,13 +88,17 @@ function App() {
         <nav className="navbar navbar-dark bg-info" id='topbar'>
           <Link to="/" className="navbar-brand">Dee Watter</Link>
           <form className="form-inline">
-            <button name='signin' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignIn(true)}>
+            <button hidden={ready} name='signin' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignIn(true)}>
               <i className="bi bi-box-arrow-in-right"></i>Sign In
             </button>
-            <button name='signup' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignUp(true)}>
-              <i className="bi bi-person-fill" aria-hidden='true'></i>Sign Up
+            <button hidden={ready} name='signup' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignUp(true)}>
+              <i className="bi bi-person-plus-fill"></i>Sign Up
             </button>
-            <button name='cart' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={handleClick}>
+            <Link to="/" hidden={!ready}>{user?.name}</Link>
+            <button hidden={!ready} name='signout' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => logout()}>
+              <i className="bi bi-box-arrow-in-left" aria-hidden='true'></i>Sign Out
+            </button>
+            <button hidden={!ready} name='cart' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={handleClick}>
               <i className="bi bi-cart-plus-fill"></i>
             </button>
           </form>
@@ -102,16 +112,22 @@ function App() {
           <Route index element={<Home/>}/>
           <Route path='pricing'>
             <Route index element={<Pricing/>}/>
-            <Route path='background' element={<Article type={'Background'}/>}/>
+            <Route path='background' element={<PrivateRoute errorMessage={dialogs.error.login} ><Article type={'Background'}/></PrivateRoute>}/>
             <Route path='character'>
               <Route index element={<Character/>}/>
-              {newArr.map((el, index) => (<Route path={el.title.toLowerCase().replace(/\s/g, '')} element={<Article type={el.title}/>} key={index}/>))}
+              {newArr.map((el, index) => 
+                (
+                  <Route path={el.title.toLowerCase().replace(/\s/g, '')} element={<PrivateRoute errorMessage={dialogs.error.login}>
+                    <Article type={el.title}/>
+                  </PrivateRoute>} key={index}/>
+                )
+              )}
             </Route>
           </Route>
           <Route path='about' element={<About/>}/>
           <Route path='terms' element={<TermsOfService/>}/>
           <Route path='contact' element={<Contact/>}/>
-          <Route path='cart' element={<Cart/>}/>
+          <Route path='cart' element={<PrivateRoute errorMessage={dialogs.error.login}><Cart/></PrivateRoute>}/>
         </Routes>
       </div>
       <div className="appfooter">
