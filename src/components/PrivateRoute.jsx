@@ -3,22 +3,22 @@ import { Navigate } from 'react-router';
 import { useSession } from '../contexts/AuthProvider';
 import { useError } from '../contexts/DialogProvider';
 
-export default function PrivateRoute({ children, errorMessage }) {
-	const { ready } = useSession();
+export default function PrivateRoute({ children, errorMessage, requireAdmin }) {
+	const { ready, user } = useSession();
 	const { setShowError, setMessage } = useError();
 
 	useEffect(() => {
-		if(!ready) {
+		if(!ready || (requireAdmin && !user.isAdmin)) {
 			setMessage(errorMessage);
 			setShowError(true);
 		}
 		else {
 			setShowError(false);
 		}
-	}, [setShowError, ready, errorMessage, setMessage])
+	}, [setShowError, ready, errorMessage, setMessage, requireAdmin, user]);
 
 	return (
-		 ready ? children : <Navigate to='/'/>
+		 (ready && requireAdmin && user.isAdmin) || (ready && !requireAdmin) ? children : <Navigate to='/'/>
 			
 		
 	);

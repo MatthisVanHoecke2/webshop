@@ -1,4 +1,3 @@
-import 'bootstrap';
 import './App.css';
 import { Link, Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
@@ -16,6 +15,7 @@ import { useLogout, useSession } from './contexts/AuthProvider';
 import { Profile, EditProfile, Security } from './pages/Profile';
 import { useConfirm } from './contexts/DialogProvider';
 import * as articlesApi from './api/articles';
+import { Administration } from './pages/Admin';
 
 function Menu({display, handleClick}) {
   return (
@@ -26,6 +26,9 @@ function Menu({display, handleClick}) {
           </button>
           <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
             <ul className="navbar-nav mr-auto mt-2 mt-lg-0 justify-content-center align-items-center">
+              <li className="nav-item">
+                <button className="btn my-2 my-sm-0" type="button" onClick={handleClick} name=''>Home</button>
+              </li>
               <li className="nav-item">
                 <button className="btn my-2 my-sm-0" type="button" onClick={handleClick} name='pricing'>Pricing</button>
               </li>
@@ -98,7 +101,7 @@ function App() {
             <button hidden={ready} name='signup' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignUp(true)}>
               <i className="bi bi-person-plus-fill"></i>Sign Up
             </button>
-            <Dropdown show={!ready} isAdmin={user ? user.isAdmin : false}/>
+            {ready && <Dropdown isAdmin={user ? user.isAdmin : false}/>}
             <button hidden={!ready} name='cart' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={handleClick}>
               <i className="bi bi-cart-plus-fill"></i>
             </button>
@@ -128,10 +131,11 @@ function App() {
           <Route path='about' element={<About/>}/>
           <Route path='terms' element={<TermsOfService/>}/>
           <Route path='contact' element={<Contact/>}/>
-          <Route path='profile' element={<Profile />}>
+          <Route path='profile' element={<PrivateRoute errorMessage={dialogs.error.login}><Profile /></PrivateRoute>}>
             <Route index element={<EditProfile user={user}/>}/>
             <Route path='security' element={<Security user={user}/>}/>
           </Route>
+          <Route path='administration' element={<PrivateRoute errorMessage={dialogs.error.permission} requireAdmin={true}><Administration /></PrivateRoute>}/>
           <Route path='cart' element={<PrivateRoute errorMessage={dialogs.error.login}><Cart/></PrivateRoute>}/>
         </Routes>
       </div>
@@ -166,7 +170,7 @@ function App() {
   );
 }
 
-function Dropdown({ show, isAdmin }) {
+function Dropdown({ isAdmin }) {
   const logout = useLogout();
   const { setShowConfirm, confirm, setMessage, setConfirm } = useConfirm();
 
@@ -181,14 +185,14 @@ function Dropdown({ show, isAdmin }) {
   }, [confirm, logout, setConfirm]);
 
   return (
-    <div className="btn-group" hidden={show}>
+    <div className="btn-group">
       <button className="btn btn-secondary dropdown-toggle my-2 my-sm-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i className="bi bi-person-fill"></i>
       </button>
       <div className="dropdown-menu">
         <Link className="dropdown-item icon-text" to="/profile"><div><i className="bi bi-person"/></div> <div>Profile</div></Link>
-        <Link className="dropdown-item icon-text" to="/"><div><i className="bi bi-card-checklist"/></div> <div>Orders</div></Link>
-        <Link className="dropdown-item icon-text" to="/" hidden={!isAdmin}><div><i className="bi bi-person-plus"/></div> <div>Administrator</div></Link>
+        <Link className="dropdown-item icon-text" to="/"><div><i className="bi bi-card-checklist"/></div> <div>My Orders</div></Link>
+        <Link className="dropdown-item icon-text" to="/administration" hidden={!isAdmin}><div><i className="bi bi-person-plus"/></div> <div>Administration</div></Link>
         <span className="dropdown-item icon-text" onClick={handleSignOut}><div><i className="bi bi-box-arrow-left"/></div> <div>Sign out</div></span>
       </div>
     </div>

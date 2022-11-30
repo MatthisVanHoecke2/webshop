@@ -118,15 +118,16 @@ transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will 
   flex-grow: 1;
 }
 
-.apptop .dropdown-menu {
-  margin-top: 47px; 
-  margin-left: calc(-115px + 0.7vw);
-}
 .apptop .dropdown-menu .dropdown-item:hover {
   cursor: pointer;
 }
 .apptop .dropdown-menu .bi {
   font-size: 28px;
+}
+.apptop .btn-group .dropdown-menu {
+  margin-top: 47px;
+  position: absolute;
+  right: 0;
 }
 
 .icon-text {
