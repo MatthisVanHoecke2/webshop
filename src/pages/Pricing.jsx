@@ -48,7 +48,7 @@ const Character = () => {
 
   return (
     <>
-    {newArr.map((el, index) => (<PriceCard location={`character/${el.name.toLowerCase().replace(/\s/g, '')}`} cardData={el} key={index}/>))}
+    {newArr.map((el, index) => (<PriceCard location={`character/${el.Type.toLowerCase()}`} cardData={el} key={index}/>))}
     </>
   );
 }

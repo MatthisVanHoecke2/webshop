@@ -1,11 +1,16 @@
+import { useEffect } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
 import { Button } from "react-bootstrap";
 import { ORDERDATA } from "../api/mock-data";
+import { useConfirm } from "../contexts/DialogProvider";
+import dialogs from "../dialogs.json";
 
 export default function Cart() {
   return (
+    <>
     <Table/>
+    </>
   );
 }
 
@@ -30,11 +35,23 @@ function TableItem({ data, deleteItem }) {
 
 function Table() {
   const [orders, setOrders] = useState(ORDERDATA);
+  const [deleteIndex, setDeleteIndex] = useState(-1);
+
+  const { setShowConfirm, confirm, setConfirm, setMessage } = useConfirm();
 
   const deleteItem = useCallback((id) => {
-    const array = orders.filter(el => el.id !== id);
-    setOrders(array);
-  }, [orders]);
+    setShowConfirm(true);
+    setMessage(dialogs.confirm.delete);
+    setDeleteIndex(id);
+  }, [setShowConfirm, setMessage]);
+
+  useEffect(() => {
+    if(confirm) {
+      const array = orders.filter(el => el.id !== deleteIndex);
+      setOrders(array);
+    }
+    setConfirm(false);
+  }, [confirm, orders, setConfirm, deleteIndex])
 
   return (
     <table className="table table-hover table-responsive">

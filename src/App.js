@@ -1,3 +1,4 @@
+import 'bootstrap';
 import './App.css';
 import { Link, Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
@@ -8,11 +9,13 @@ import Contact from './pages/Contact';
 import React, { useCallback, useEffect, useState } from 'react';
 import Modals from './modals/Modals';
 import Article from './pages/Article';
-import { PRICEDATA } from './api/mock-data';
 import Cart from './pages/Cart';
 import PrivateRoute from './components/PrivateRoute';
 import dialogs from './dialogs';
 import { useLogout, useSession } from './contexts/AuthProvider';
+import { Profile, EditProfile, Security } from './pages/Profile';
+import { useConfirm } from './contexts/DialogProvider';
+import * as articlesApi from './api/articles';
 
 function Menu({display, handleClick}) {
   return (
@@ -49,15 +52,16 @@ function App() {
   }
 
   const { ready, user } = useSession();
-  const logout = useLogout();
 
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
+  const [portraits, setPortraits] = useState([]);
 
   const [headers, setHeaders] = useState({});
   const onScroll = useCallback(() => {
     const { header, menu, clone } = headers;
 
+    if(!header || !menu || !clone) return;
     const sticky = menu.offsetTop-header.clientHeight;
 
     const toggleButton = menu.firstChild.firstChild;
@@ -65,6 +69,7 @@ function App() {
     if (window.scrollY > sticky && clone.style.display === "none") clone.style.display = "flex";
     else if(window.scrollY < sticky+clone.offsetTop && clone.style.display !== "none") clone.style.display = "none";
   }, [headers]);
+  window.onscroll = onScroll;
 
   useEffect(() => {
     const header = document.getElementsByClassName("apptop")[0];
@@ -74,14 +79,13 @@ function App() {
 
     banner.style.marginTop = `${header.offsetHeight}px`;
     setHeaders({header, menu, clone});
+
+    const getArticles = async () => {
+      const newArr = await articlesApi.getAllPortraits()
+      setPortraits(newArr);
+    }
+    getArticles();
   }, []);
-
-  const newArr = [...PRICEDATA];
-  newArr.splice(newArr.findIndex(el => el.title === 'Character'), 1);
-  newArr.splice(newArr.findIndex(el => el.title === 'Background'), 1);
-
-  window.onscroll = onScroll;
-
   return (
     <div className="App">
       <div className='apptop'>
@@ -94,10 +98,7 @@ function App() {
             <button hidden={ready} name='signup' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignUp(true)}>
               <i className="bi bi-person-plus-fill"></i>Sign Up
             </button>
-            <Link to="/" hidden={!ready}>{user?.name}</Link>
-            <button hidden={!ready} name='signout' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => logout()}>
-              <i className="bi bi-box-arrow-in-left" aria-hidden='true'></i>Sign Out
-            </button>
+            <Dropdown show={!ready} isAdmin={user ? user.isAdmin : false}/>
             <button hidden={!ready} name='cart' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={handleClick}>
               <i className="bi bi-cart-plus-fill"></i>
             </button>
@@ -115,10 +116,10 @@ function App() {
             <Route path='background' element={<PrivateRoute errorMessage={dialogs.error.login} ><Article type={'Background'}/></PrivateRoute>}/>
             <Route path='character'>
               <Route index element={<Character/>}/>
-              {newArr.map((el, index) => 
+              {portraits.map((el, index) => 
                 (
-                  <Route path={el.title.toLowerCase().replace(/\s/g, '')} element={<PrivateRoute errorMessage={dialogs.error.login}>
-                    <Article type={el.title}/>
+                  <Route path={el.Type.toLowerCase()} element={<PrivateRoute errorMessage={dialogs.error.login}>
+                    <Article type={el.Type}/>
                   </PrivateRoute>} key={index}/>
                 )
               )}
@@ -127,6 +128,10 @@ function App() {
           <Route path='about' element={<About/>}/>
           <Route path='terms' element={<TermsOfService/>}/>
           <Route path='contact' element={<Contact/>}/>
+          <Route path='profile' element={<Profile />}>
+            <Route index element={<EditProfile user={user}/>}/>
+            <Route path='security' element={<Security user={user}/>}/>
+          </Route>
           <Route path='cart' element={<PrivateRoute errorMessage={dialogs.error.login}><Cart/></PrivateRoute>}/>
         </Routes>
       </div>
@@ -157,6 +162,35 @@ function App() {
         </footer>
       </div>
       <Modals showModal={{showSignIn, showSignUp}} setShowModal={{setShowSignIn, setShowSignUp}}/>
+    </div>
+  );
+}
+
+function Dropdown({ show, isAdmin }) {
+  const logout = useLogout();
+  const { setShowConfirm, confirm, setMessage, setConfirm } = useConfirm();
+
+  const handleSignOut = useCallback(() => {
+    setMessage(dialogs.confirm.signout);
+    setShowConfirm(true);
+  }, [setMessage, setShowConfirm]);
+
+  useEffect(() => {
+    if(confirm) logout();
+    setConfirm(false);
+  }, [confirm, logout, setConfirm]);
+
+  return (
+    <div className="btn-group" hidden={show}>
+      <button className="btn btn-secondary dropdown-toggle my-2 my-sm-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i className="bi bi-person-fill"></i>
+      </button>
+      <div className="dropdown-menu">
+        <Link className="dropdown-item icon-text" to="/profile"><div><i className="bi bi-person"/></div> <div>Profile</div></Link>
+        <Link className="dropdown-item icon-text" to="/"><div><i className="bi bi-card-checklist"/></div> <div>Orders</div></Link>
+        <Link className="dropdown-item icon-text" to="/" hidden={!isAdmin}><div><i className="bi bi-person-plus"/></div> <div>Administrator</div></Link>
+        <span className="dropdown-item icon-text" onClick={handleSignOut}><div><i className="bi bi-box-arrow-left"/></div> <div>Sign out</div></span>
+      </div>
     </div>
   );
 }

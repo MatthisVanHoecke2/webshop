@@ -5,17 +5,17 @@ import { useError } from '../contexts/DialogProvider';
 
 export default function PrivateRoute({ children, errorMessage }) {
 	const { ready } = useSession();
-	const { setShowError, setErrorMessage } = useError();
+	const { setShowError, setMessage } = useError();
 
 	useEffect(() => {
 		if(!ready) {
-			setErrorMessage(errorMessage);
+			setMessage(errorMessage);
 			setShowError(true);
 		}
 		else {
 			setShowError(false);
 		}
-	}, [setShowError, ready, errorMessage, setErrorMessage])
+	}, [setShowError, ready, errorMessage, setMessage])
 
 	return (
 		 ready ? children : <Navigate to='/'/>

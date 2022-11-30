@@ -11,14 +11,15 @@ export const useError = () => {
 }
 
 export const useConfirm = () => {
-  const { showConfirm, setShowConfirm, message, setMessage  } = useDialogContext();
-  return { showConfirm, setShowConfirm, message, setMessage };
+  const { showConfirm, setShowConfirm, message, setMessage, confirm, setConfirm  } = useDialogContext();
+  return { showConfirm, setShowConfirm, message, setMessage, confirm, setConfirm };
 }
 
 export const DialogProvider = ({ children }) => {
   const [showError, setShowError] = useState(false);
   const [message, setMessage] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [confirm, setConfirm] = useState(false);
 
 
   const value = useMemo(() => ({
@@ -27,8 +28,10 @@ export const DialogProvider = ({ children }) => {
     message,
     setMessage,
     showConfirm,
-    setShowConfirm
-  }), [showError, setShowError, message, setMessage, showConfirm, setShowConfirm])
+    setShowConfirm,
+    confirm,
+    setConfirm,
+  }), [showError, setShowError, message, setMessage, showConfirm, setShowConfirm, confirm, setConfirm])
   return (
     <DialogContext.Provider value={value}>
       {children}

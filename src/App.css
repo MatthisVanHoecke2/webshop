@@ -118,6 +118,61 @@ transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will 
   flex-grow: 1;
 }
 
+.apptop .dropdown-menu {
+  margin-top: 47px; 
+  margin-left: calc(-115px + 0.7vw);
+}
+.apptop .dropdown-menu .dropdown-item:hover {
+  cursor: pointer;
+}
+.apptop .dropdown-menu .bi {
+  font-size: 28px;
+}
+
+.icon-text {
+  display: flex !important;
+  gap: 10px !important;
+  padding-left: 10px !important;
+}
+.icon-text div:last-child{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.icon-text .pr-item {
+  border: none;
+  border-bottom: 1px solid lightgray;
+}
+
+.profilemain {
+  font-family: 'Roboto';
+  text-align: left;
+  border: 1px solid lightgray;
+  margin-top: 20px;
+  width: min(100%, calc(50% + 20em));
+  height: fit-content;
+}
+.profilemain .d-flex .profile-items{
+  border-right: 1px solid lightgray;
+}
+.profilemain .d-flex .profile-items .list-group{
+  border-bottom: 1px solid lightgray;
+  margin-top: 10px;
+}
+.profilemain .profile-header {
+  padding: 10px;
+  box-shadow: 0 2px 10px 0 rgba(66, 133, 244,.16);
+}
+.profilemain .d-flex .profile-content{
+  margin: 2rem;
+  width: 60%;
+}
+.profile-label {
+  color: #a6a6a6;
+  font-size: medium;
+  font-weight: bold;
+}
+
 .table {
   height: fit-content;
 }

@@ -23,6 +23,11 @@ export const useLogout = () => {
   return logout;
 }
 
+export const useSignUp = () => {
+  const { signup } = useAuth();
+  return signup;
+}
+
 export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,18 +35,44 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
+  const logout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+  }, [])
+
   useEffect(() => {
     setReady(Boolean(token));
     api.setAuthToken(token);
-    if(token) localStorage.setItem(JWT_TOKEN_KEY, token);
+    if(token) {
+      localStorage.setItem(JWT_TOKEN_KEY, token);
+      usersApi.getByToken().then(user => setUser(user)).catch(() => logout());
+    }
     else localStorage.removeItem(JWT_TOKEN_KEY);
-  }, [token])
+  }, [token, logout])
 
   const login = useCallback(async (userInput, password) => {
     try {
       setLoading(false);
       setError('');
       const { token, user } = await usersApi.login(userInput, password);
+      setToken(token);
+      setUser(user);
+      return true;
+    }
+    catch(error) {
+      setError('Login failed, please try again');
+      return false;
+    }
+    finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const signup = useCallback(async (data) => {
+    try {
+      setLoading(false);
+      setError('');
+      const { token, user } = await usersApi.saveUser({name: data.user, email: data.email, password: data.pass});
       setToken(token);
       setUser(user);
       return true;
@@ -56,11 +87,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    setUser(null);
-    setToken(null);
-  }, [])
-
   const value = useMemo(() => ({
     loading,
     error,
@@ -68,8 +94,9 @@ export const AuthProvider = ({ children }) => {
     user,
     ready,
     login,
-    logout
-  }), [error, loading, token, user, ready, login, logout]);
+    logout,
+    signup
+  }), [error, loading, token, user, ready, login, logout, signup]);
 
   return (
     <AuthContext.Provider value={value}>

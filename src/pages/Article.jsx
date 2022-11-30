@@ -1,21 +1,31 @@
 import { useEffect, memo } from "react";
 import { useCallback, useMemo } from "react";
 import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import * as articlesApi from "../api/articles";
+import { CheckboxInput, LabelInput, TextareaInput } from "../components/FormComponents";
+
+const validationRules = {
+  description: {
+    required: "Description is required"
+  }
+}
 
 export default memo(function Article({type}) {
   const [articles, setArticles] = useState([]);
-  const filtered = useMemo(() => articles.find(el => el.name === type), [articles, type]);
+  const filtered = useMemo(() => articles.find(el => el.Type === type || el.name === type), [articles, type]);
   const detailedPrice = useMemo(() => articles.find(el => el.name === 'Background')?.extra, [articles]);
   const [total, setTotal] = useState(filtered?.price);
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [hideCheckbox, setHideCheckbox] = useState(true);
+  const [extraCharacter, setExtraCharacter] = useState(1);
+  const [detailed, setDetailed] = useState(false);
 
   const handleChange = useCallback(() => {
-    const checkboxGroup = document.getElementById('characterAmountInput');
-    const isDetailed = document.getElementById('backgroundCheck').checked;
-    const amount = checkboxGroup && checkboxGroup.style.display !== 'none' ? parseInt(document.getElementById('extraCharacterAmount').value) : 0;
-    const detail = isDetailed ? parseInt(detailedPrice) : 0;
+    const amount = !hideCheckbox ? extraCharacter : 0;
+    const detail = detailed ? parseInt(detailedPrice) : 0;
     setTotal(parseInt(filtered?.price) + (amount * parseInt(filtered?.extra)) + detail);
-  }, [filtered, detailedPrice]);
+  }, [filtered, detailedPrice, extraCharacter, hideCheckbox, detailed]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -30,52 +40,40 @@ export default memo(function Article({type}) {
     handleChange();
   }, [articles, handleChange])
 
+  const onSubmit = async () => {
+
+  }
+
   return (
     <div className="article">
       <h1>{filtered?.name}</h1>
       <h2>Create Order</h2>
-      <form>
-        <div className="form-group">
-          <label className="form-label lbl" htmlFor="description">Description</label>
-          <textarea className="form-control" id="description" rows="3" maxLength={300}></textarea>
-        </div>
-        <label className="form-label lbl">Attributes:</label>
-        <div className="form-check">
-          <input type="checkbox" className="form-check-input" id="backgroundCheck" onClick={handleChange}/>
-          <label className="form-check-label" htmlFor="backgroundCheck">Detailed background</label>
-        </div>
-        {type.toLowerCase() !== 'background' && <CharacterArticle handleChange={handleChange}/>}
-        <div className="form-group">
-          <label className="form-label lbl" htmlFor="imageUrl">Reference:</label>
-          <input type="text" className="form-control" id="imageUrl" placeholder="ImageUrl"/>
-        </div>
-        <div className="form-group">
-          <label className="form-label lbl">Total:</label>
-          <input type="text" className="form-control" id="totalprice" disabled value={`$${total}`}/>
-        </div>
-      </form>
+      <FormProvider onSubmit={handleSubmit} errors={errors} register={register}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextareaInput label="Description" name="description" lblclass="form-label lbl" rows="3" maxLength={300} validationRules={validationRules}/>
+          <label className="form-label lbl">Attributes:</label>
+          <CheckboxInput label="Detailed background" name="backgroundCheck" validationRules={validationRules} onClick={(e) => { handleChange(); setDetailed(e.currentTarget.checked)}}/>
+          {type.toLowerCase() !== 'background' && <CharacterArticle handleChange={handleChange} hideCheckbox={hideCheckbox} setHideCheckbox={setHideCheckbox} setExtraCharacter={setExtraCharacter}/>}
+          <LabelInput label="Reference:" name="imageUrl" type="text" lblclass="form-label lbl" validationRules={validationRules} placeholder="ImageUrl"/>
+          <LabelInput label="Total:" name="totalprice" type="text" lblclass="form-label lbl" validationRules={validationRules} disabled value={`$${total}`}/>
+        </form>
+      </FormProvider>
     </div>
   );
 });
 
-const CharacterArticle = ({ handleChange }) => {
+const CharacterArticle = ({ handleChange, hideCheckbox, setHideCheckbox, setExtraCharacter }) => {
+
   const handleCharacterClick = useCallback((e) => {
-    const checkboxGroup = document.getElementById('characterAmountInput');
-    if(!e.currentTarget.checked) checkboxGroup.style.display = 'none';
-    else checkboxGroup.style.display = 'block';
+    if(!e.currentTarget.checked) setHideCheckbox(true);
+    else setHideCheckbox(false);
     handleChange();
-  }, [handleChange])
+  }, [handleChange, setHideCheckbox])
 
   return (
     <>
-      <div className="form-check">
-        <input type="checkbox" className="form-check-input" id="extraCharacterCheck" onClick={handleCharacterClick}/>
-        <label className="form-check-label" htmlFor="extraCharacterCheck">Extra character</label>
-      </div>
-      <div className="form-group" id="characterAmountInput" style={{display: 'none'}} onChange={() => handleChange()}>
-        <label className="form-label lbl" htmlFor="extraCharacterAmount">Amount of extra characters:</label>
-        <input type="number" defaultValue={1} min={1} max={3} className="form-control" id="extraCharacterAmount"/>
-      </div>
+      <CheckboxInput label="Extra character" name="extraCharacterCheck" validationRules={validationRules} onClick={handleCharacterClick}/>
+      <LabelInput label="Amount of extra characters" name="extraCharacterAmount" type="number" hidden={hideCheckbox} validationRules={validationRules} defaultValue={1} min={1} max={3} onChange={(e) => setExtraCharacter(parseInt(e.currentTarget.value))}/>
     </>
   );
 }

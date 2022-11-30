@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import {Modal, Button} from 'react-bootstrap';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useNavigate } from 'react-router';
-import LabelInput from '../components/FormComponents';
-import { useLogin, useSession } from '../contexts/AuthProvider';
+import { LabelInput } from '../components/FormComponents';
+import { useLogin, useSession, useSignUp } from '../contexts/AuthProvider';
 import { useConfirm, useError } from '../contexts/DialogProvider';
 
 export default function Modals({showModal, setShowModal}) {
@@ -14,15 +13,19 @@ export default function Modals({showModal, setShowModal}) {
       <SignUp show={showSignUp} handleClose={() => setShowSignUp(false)}/>
       <SignIn show={showSignIn} handleClose={() => setShowSignIn(false)}/>
       <Error/>
+      <Confirm/>
     </>
   );
 }
 
 function SignUp({show, handleClose}) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const signup = useSignUp();
 
-  const onSumbit = (data) => {
-    console.log(JSON.stringify(data));
+  const onSubmit = async (data) => {
+    const success = await signup(data);
+    
+    if(success) handleClose();
   }
 
   const validationRules = {
@@ -51,7 +54,7 @@ function SignUp({show, handleClose}) {
   return (
     <Modal show={show} onHide={handleClose}>
       <FormProvider onSubmit={handleSubmit} errors={errors} register={register} watch={watch}>
-        <form onSubmit={handleSubmit(onSumbit)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Header closeButton>
             <Modal.Title className='text-center'>Sign Up</Modal.Title>
           </Modal.Header>
@@ -81,7 +84,7 @@ function SignUp({show, handleClose}) {
                 validationRules={validationRules}
               />                                  
           </Modal.Body>
-          <Modal.Footer>
+          <Modal.Footer className='justify-content-between'>
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
@@ -143,7 +146,7 @@ function SignIn({show, handleClose}) {
 						    ) : null
 					    }                      
           </Modal.Body>
-          <Modal.Footer>
+          <Modal.Footer className='justify-content-between'>
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
@@ -171,14 +174,32 @@ export function Error() {
 }
 
 export function Confirm() {
-  const { showConfirm, setShowConfirm, message } = useConfirm();
+  const { showConfirm, setShowConfirm, message, setConfirm } = useConfirm();
 
-  return (<Modal show={showConfirm} onHide={() => setShowConfirm(false)}>
+  const handleClose = useCallback(() => {
+    setConfirm(false);
+    setShowConfirm(false)
+  }, [setConfirm, setShowConfirm]);
+
+  const handleConfirm = useCallback(() => {
+    setConfirm(true);
+    setShowConfirm(false)
+  }, [setConfirm, setShowConfirm]);
+
+  return (<Modal show={showConfirm} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Error</Modal.Title>
+        <Modal.Title>Confirm</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <label>{message}</label>
       </Modal.Body>
+      <Modal.Footer className='justify-content-between'>
+        <Button variant="secondary" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleConfirm}>
+          Confirm
+        </Button>
+      </Modal.Footer>
   </Modal>);
 }
