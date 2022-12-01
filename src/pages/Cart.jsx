@@ -9,7 +9,9 @@ import dialogs from "../dialogs.json";
 export default function Cart() {
   return (
     <>
-    <Table/>
+    <div className="cart">
+      <Table/>
+    </div>
     </>
   );
 }

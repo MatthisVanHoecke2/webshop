@@ -15,7 +15,7 @@ import { useLogout, useSession } from './contexts/AuthProvider';
 import { Profile, EditProfile, Security } from './pages/Profile';
 import { useConfirm } from './contexts/DialogProvider';
 import * as articlesApi from './api/articles';
-import { Administration } from './pages/Admin';
+import { Administration, Dashboard, Orders, Users } from './pages/Admin';
 
 function Menu({display, handleClick}) {
   return (
@@ -135,7 +135,11 @@ function App() {
             <Route index element={<EditProfile user={user}/>}/>
             <Route path='security' element={<Security user={user}/>}/>
           </Route>
-          <Route path='administration' element={<PrivateRoute errorMessage={dialogs.error.permission} requireAdmin={true}><Administration /></PrivateRoute>}/>
+          <Route path='administration' element={<PrivateRoute errorMessage={dialogs.error.permission} requireAdmin={true}><Administration /></PrivateRoute>}>
+            <Route index element={<Dashboard/>}/>
+            <Route path='orders' element={<Orders/>}/>
+            <Route path='customers' element={<Users user={user}/>}/>
+          </Route>
           <Route path='cart' element={<PrivateRoute errorMessage={dialogs.error.login}><Cart/></PrivateRoute>}/>
         </Routes>
       </div>

@@ -8,7 +8,7 @@ export default function PrivateRoute({ children, errorMessage, requireAdmin }) {
 	const { setShowError, setMessage } = useError();
 
 	useEffect(() => {
-		if(!ready || (requireAdmin && !user.isAdmin)) {
+		if(!ready || (requireAdmin && !user?.isAdmin)) {
 			setMessage(errorMessage);
 			setShowError(true);
 		}
@@ -18,7 +18,7 @@ export default function PrivateRoute({ children, errorMessage, requireAdmin }) {
 	}, [setShowError, ready, errorMessage, setMessage, requireAdmin, user]);
 
 	return (
-		 (ready && requireAdmin && user.isAdmin) || (ready && !requireAdmin) ? children : <Navigate to='/'/>
+		 (ready && requireAdmin && user?.isAdmin) || (ready && !requireAdmin) ? children : <Navigate to='/'/>
 			
 		
 	);

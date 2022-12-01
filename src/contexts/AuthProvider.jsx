@@ -28,27 +28,36 @@ export const useSignUp = () => {
   return signup;
 }
 
+export const useTokenCheck = () => {
+  const { checkToken } = useAuth();
+  return checkToken;
+}
+
 export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [token, setToken] = useState(localStorage.getItem(JWT_TOKEN_KEY));
   const [user, setUser] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true);
 
   const logout = useCallback(() => {
     setUser(null);
     setToken(null);
   }, [])
 
+  const checkToken = useCallback(() => {
+    return usersApi.getByToken().then(user => setUser(user)).catch(() => logout());
+  }, [logout]);
+
   useEffect(() => {
     setReady(Boolean(token));
     api.setAuthToken(token);
     if(token) {
       localStorage.setItem(JWT_TOKEN_KEY, token);
-      usersApi.getByToken().then(user => setUser(user)).catch(() => logout());
+      checkToken();
     }
     else localStorage.removeItem(JWT_TOKEN_KEY);
-  }, [token, logout])
+  }, [token, checkToken])
 
   const login = useCallback(async (userInput, password) => {
     try {
@@ -95,8 +104,9 @@ export const AuthProvider = ({ children }) => {
     ready,
     login,
     logout,
-    signup
-  }), [error, loading, token, user, ready, login, logout, signup]);
+    signup,
+    checkToken
+  }), [error, loading, token, user, ready, login, logout, signup, checkToken]);
 
   return (
     <AuthContext.Provider value={value}>

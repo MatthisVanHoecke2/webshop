@@ -8,18 +8,18 @@ import * as usersApi from "../api/users";
 export function Profile() {
 
   return (
-    <div className="profilemain">
-      <div className="profile-header">
+    <div className="editpage">
+      <div className="edit-header">
         <h1>My Profile</h1>
       </div>
       <div className="d-flex">
-        <div className="profile-items">
+        <div className="edit-items">
           <div className="list-group list-group-flush">
             <Link to="/profile" className="list-group-item list-group-item-action icon-text"><div><i className="bi bi-pencil-fill"/></div><div>Edit Profile</div></Link>
             <Link to="/profile/security" className="list-group-item list-group-item-action icon-text"><div><i className="bi bi-shield-fill-check"/></div><div>Password & Security</div></Link>
           </div>
         </div>
-        <div className="profile-content"><Outlet/></div>
+        <div className="edit-content"><Outlet/></div>
       </div>
     </div>
   );
@@ -49,8 +49,8 @@ export function EditProfile({ user }) {
     <FormProvider onSubmit={handleSubmit} errors={errors} register={register}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <h3>Edit Profile</h3>
-          <LabelInput label="Username" name="name" type="text" lblclass="profile-label" validationRules={validationRules} defaultValue={user?.name}/>
-          <LabelInput label="Email" name="email" type="email" lblclass="profile-label" validationRules={validationRules} defaultValue={user?.email}/>
+          <LabelInput label="Username" name="name" type="text" lblclass="edit-label" validationRules={validationRules} defaultValue={user?.name}/>
+          <LabelInput label="Email" name="email" type="email" lblclass="edit-label" validationRules={validationRules} defaultValue={user?.email}/>
           <Button variant="primary" type='submit'>Save</Button>
         </form>
     </FormProvider>
@@ -89,8 +89,8 @@ export function Security({ user }) {
     <FormProvider onSubmit={handleSubmit} errors={errors} register={register}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <h3>Edit Password</h3>
-          <LabelInput label="Password" name="password" type="password" lblclass="profile-label" validationRules={validationRules}/>
-          <LabelInput label="Confirm Password" name="passconfirm" type="password" lblclass="profile-label" validationRules={validationRules}/>
+          <LabelInput label="Password" name="password" type="password" lblclass="edit-label" validationRules={validationRules}/>
+          <LabelInput label="Confirm Password" name="passconfirm" type="password" lblclass="edit-label" validationRules={validationRules}/>
           <Button variant="primary" type='submit'>Save</Button>
         </form>
     </FormProvider>
