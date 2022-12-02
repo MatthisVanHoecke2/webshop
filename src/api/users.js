@@ -1,5 +1,10 @@
 import {axios} from '.';
 
+export const countAll = async () => {
+  const { data } = await axios.get('users/count');
+  return data.items[0];
+};
+
 export const getAll = async () => {
   const { data } = await axios.get('users');
   return data.items;
