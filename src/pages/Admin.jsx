@@ -1,11 +1,14 @@
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
+import * as articlesApi from '../api/articles'
 import * as ordersApi from '../api/orders';
 import * as usersApi from '../api/users';
+import * as orderlinesApi from '../api/orderlines';
 import { formatDate } from "../components/GeneralMethods";
 import config from '../config.json';
 import { useTokenCheck } from "../contexts/AuthProvider";
+import { Overlay, Tooltip } from "react-bootstrap";
 
 export function Administration() {
 
@@ -135,56 +138,156 @@ export function Dashboard() {
 }
 
 export function Customers() {
-  return (
-    <>
-    
-    </>
-  );
-}
+  const [customers, setCustomers] = useState([]);
+  const [target, setTarget] = useState(null);
 
-export function Orders() {
-  const [showOrder, setShowOrder] = useState([]);
+  useEffect(() => {
+    const getData = async () => {
+      const customer = await usersApi.getAll();
+      setCustomers(customer);
+    }
+    getData();
+  }, []);
 
-  const toggleOrder = (e) => {
-    const id = parseInt(e.currentTarget.id);
-    const orders = [...showOrder];
-    if(!showOrder.includes(id)) orders.push(id);
-    else orders.splice(orders.indexOf(id), 1);
-    setShowOrder(orders);
+  const clickEmail = (e) => {
+    navigator.clipboard.writeText(e.currentTarget.innerHTML);
   }
 
   return (
-    <>
     <div className="table-container">
       <table className="table table-borderless">
         <thead>
           <tr>
+            <th style={{width: "20%"}}>UserID</th>
+            <th>Name</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers && customers.map((el) => 
+            <tr key={el.id}>
+              <td>{el.id}</td>
+              <td>{el.name}</td>
+              <td>
+                <Link onClick={clickEmail} onMouseOver={(e) => setTarget(e.currentTarget)} onMouseOut={() => setTarget(null)}>{el.email}</Link>
+                <Overlay target={target} show={target !== null} placement="top">
+                  {(props) => (
+                    <Tooltip id="overlay-tooltip" {...props}>
+                      {target?.innerHTML}
+                    </Tooltip>
+                  )}
+                </Overlay>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function Orders() {
+  const [showOrder, setShowOrder] = useState(-1);
+  const [orders, setOrders] = useState([]);
+  const [articles, setArticles] = useState([]);
+
+
+  const getData = useCallback(async () => {
+    const order = await ordersApi.getAll();
+    setOrders(order);
+    const article = await articlesApi.getAll();
+    setArticles(article)
+  }, []);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  return (
+    <>
+    <div className="table-container">
+      <table className="table table-borderless table-striped-reverse">
+        <thead>
+          <tr>
             <th>OrderID</th>
+            <th>Price</th>
             <th>Date</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>01/12/2022 18:00:00</td>
-            <td><Link id={1} onClick={toggleOrder}><i className={showOrder.includes(1) ? "bi bi-caret-down-fill" : "bi bi-caret-right-fill"}/></Link></td>
-          </tr>
-          <tr></tr>
-          <tr>
-            <td>1</td>
-            <td>01/12/2022 18:00:00</td>
-            <td><Link id={2} onClick={toggleOrder}><i className={showOrder.includes(2) ? "bi bi-caret-down-fill" : "bi bi-caret-right-fill"}/></Link></td>
-          </tr>
-          <tr></tr>
-          <tr>
-            <td>1</td>
-            <td>01/12/2022 18:00:00</td>
-            <td><Link id={3} onClick={toggleOrder}><i className={showOrder.includes(3) ? "bi bi-caret-down-fill" : "bi bi-caret-right-fill"}/></Link></td>
-          </tr>
+          {orders && orders.map(order => <Order key={order.order} data={order} articles={articles} showOrderState={{showOrder, setShowOrder}}/>)}
         </tbody>
       </table>
     </div>
     </>
+  );
+}
+
+function Order({data, articles, showOrderState}) {
+  const {showOrder, setShowOrder} = showOrderState;
+  const [orderlines, setOrderlines] = useState([]);
+
+  const toggleOrder = useCallback(async (e) => {
+    const id = parseInt(e.currentTarget.id);
+    if(showOrder !== id) {
+      setShowOrder(id);
+      const orderline = await orderlinesApi.getByOrderId(id);
+      setOrderlines(orderline);
+    }
+    else {
+      setShowOrder(-1);
+      setOrderlines([]);
+    }
+  }, [showOrder, setShowOrder]);
+
+  return (
+    <>
+      <tr className="order">
+        <td>{data.order}</td>
+        <td>${data.price}</td>
+        <td>{formatDate(new Date(data.date))}</td>
+        <td><Link id={data.order} onClick={toggleOrder}><i className={showOrder === data.order ? "bi bi-caret-down-fill" : "bi bi-caret-right-fill"}/></Link></td>
+      </tr>
+      {showOrder === data.order && 
+        <tr className="orderline">
+          <td colSpan={4}>
+            {orderlines && orderlines.map((line) => <Orderline key={`${data.order}-${line.orderline}`} data={{name: articles.find((el) => el.id === line.article)?.name, ...line}}/>)}
+          </td>
+        </tr>
+      }
+    </>
+  );
+}
+
+function Orderline({data}) {
+  const changeStatus = useCallback(async (e, id) => {
+    await orderlinesApi.saveOrderline({ id, status: e.currentTarget.value });
+  }, []);
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>ItemID: {data.orderline}</th>
+          <th colSpan={2}/>
+          <th>
+            <select className="form-select form-select-sm" aria-label="select" defaultValue={data.status} onChange={(e) => changeStatus(e, data.orderline)}>
+              <option value="In Queue">In Queue</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Price:</td><td colSpan={3}>${data.price}</td></tr>
+        <tr><td>Type:</td><td colSpan={3}>{data.name}</td></tr>
+        <tr><td>Detailed background:</td><td colSpan={3}><input type="checkbox" className="form-check-input" disabled={true} checked={data.detailed}/></td></tr>
+        <tr><td>Characters:</td><td colSpan={3}>{data.characters}</td></tr>
+        <tr><td>Description:</td><td colSpan={3}><textarea className="form-control" disabled={true} defaultValue={data.description}/></td></tr>
+        <tr><td>Reference:</td><td colSpan={3}><img className="img-fluid" src={data.imageUrl} alt="cat"></img></td></tr>
+      </tbody>
+    </table>
   );
 }

@@ -15,3 +15,12 @@ export function formatDate(date) {
 
   return `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
 }
+
+export function calculatePrice(article, detailedPrice, data) {
+  const {characters, detailed} = data;
+  if(!article) return;
+  let price = article?.price;
+  if(detailed) price += detailedPrice ?? 0;
+  price += (characters * parseInt(article?.extra));
+  return price;
+}

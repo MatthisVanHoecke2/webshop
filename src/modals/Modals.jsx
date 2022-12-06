@@ -3,7 +3,7 @@ import {Modal, Button} from 'react-bootstrap';
 import { useForm, FormProvider } from 'react-hook-form';
 import { LabelInput } from '../components/FormComponents';
 import { useLogin, useSession, useSignUp } from '../contexts/AuthProvider';
-import { useConfirm, useError } from '../contexts/DialogProvider';
+import { useConfirm, useError, useInfo } from '../contexts/DialogProvider';
 
 export default function Modals({showModal, setShowModal}) {
   const { showSignIn, showSignUp } = showModal;
@@ -13,6 +13,7 @@ export default function Modals({showModal, setShowModal}) {
       <SignUp show={showSignUp} handleClose={() => setShowSignUp(false)}/>
       <SignIn show={showSignIn} handleClose={() => setShowSignIn(false)}/>
       <Error/>
+      <Info/>
       <Confirm/>
     </>
   );
@@ -158,6 +159,18 @@ function SignIn({show, handleClose}) {
       </FormProvider>
     </Modal>
   );
+}
+
+export function Info() {
+  const { showInfo, setShowInfo, message } = useInfo();
+  return (<Modal show={showInfo} onHide={() => setShowInfo(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Info</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <label>{message}</label>
+      </Modal.Body>
+  </Modal>);
 }
 
 export function Error() {

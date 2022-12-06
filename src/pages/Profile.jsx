@@ -8,7 +8,7 @@ import * as usersApi from "../api/users";
 export function Profile() {
 
   return (
-    <div className="editpage">
+    <div className="editpage profile">
       <div className="edit-header">
         <h1>My Profile</h1>
       </div>

@@ -1,5 +1,10 @@
 import {axios} from '.';
 
+export const getAll = async () => {
+  const { data } = await axios.get('orders');
+  return data.items;
+}
+
 export const countAll = async () => {
   const { data } = await axios.get('orders/count');
   return data.items[0];

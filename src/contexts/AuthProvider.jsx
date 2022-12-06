@@ -34,11 +34,11 @@ export const useTokenCheck = () => {
 }
 
 export const AuthProvider = ({ children }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [token, setToken] = useState(localStorage.getItem(JWT_TOKEN_KEY));
   const [user, setUser] = useState(null);
-  const [ready, setReady] = useState(true);
+  const [ready, setReady] = useState(false);
 
   const logout = useCallback(() => {
     setUser(null);
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const checkToken = useCallback(() => {
-    return usersApi.getByToken().then(user => setUser(user)).catch(() => logout());
+    return usersApi.getByToken().then(user => setUser(user)).catch(() => logout()).finally(() => setLoading(false));
   }, [logout]);
 
   useEffect(() => {
@@ -56,8 +56,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem(JWT_TOKEN_KEY, token);
       checkToken();
     }
-    else localStorage.removeItem(JWT_TOKEN_KEY);
-  }, [token, checkToken])
+    else {
+      localStorage.removeItem(JWT_TOKEN_KEY);
+      setLoading(false);
+    }
+  }, [token, checkToken, logout]);
 
   const login = useCallback(async (userInput, password) => {
     try {

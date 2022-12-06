@@ -14,7 +14,7 @@ const Pricing = () => {
   }, [])
   return (
     <>
-    {articles.map((el, index) => (<PriceCard location={el.type?el.type:el.name.toLowerCase()} cardData={el} key={index}/>))}
+    {articles.map((el, index) => (<PriceCard location={!el.type ? el.name.toLowerCase() : el.type === 'base' ? 'character' : el.type } cardData={el} key={index}/>))}
     </>
   );
 }
@@ -44,11 +44,11 @@ const Character = () => {
     fetchCharacters();
   })
   const newArr = [...characters];
-  newArr.splice(newArr.findIndex(el => el.Type === 'base'), 1);
+  newArr.splice(newArr.findIndex(el => el.type === 'base'), 1);
 
   return (
     <>
-    {newArr.map((el, index) => (<PriceCard location={`character/${el.Type.toLowerCase()}`} cardData={el} key={index}/>))}
+    {newArr.map((el, index) => (<PriceCard location={`character/${el.type.toLowerCase()}`} cardData={el} key={index}/>))}
     </>
   );
 }

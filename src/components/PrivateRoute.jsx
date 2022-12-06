@@ -1,24 +1,30 @@
-import { useEffect } from 'react';
-import { Navigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useSession } from '../contexts/AuthProvider';
 import { useError } from '../contexts/DialogProvider';
 
 export default function PrivateRoute({ children, errorMessage, requireAdmin }) {
-	const { ready, user } = useSession();
+	const { ready, user, loading } = useSession();
 	const { setShowError, setMessage } = useError();
+	const [child, setChild] = useState((<></>));
+	const navigate = useNavigate();
 
 	useEffect(() => {
-		if(!ready || (requireAdmin && !user?.isAdmin)) {
-			setMessage(errorMessage);
-			setShowError(true);
+		if(!loading) {
+			if(!ready || (requireAdmin && !user?.isAdmin)) {
+				setMessage(errorMessage);
+				setShowError(true);
+				navigate('/');
+			}
+			else if((ready && requireAdmin && user?.isAdmin) || (ready && !requireAdmin)) {
+				setChild(children);
+				setShowError(false);
+			}
 		}
-		else {
-			setShowError(false);
-		}
-	}, [setShowError, ready, errorMessage, setMessage, requireAdmin, user]);
+	}, [children, errorMessage, navigate, ready, requireAdmin, setMessage, setShowError, user, loading]);
 
 	return (
-		 (ready && requireAdmin && user?.isAdmin) || (ready && !requireAdmin) ? children : <Navigate to='/'/>
+		 child
 			
 		
 	);

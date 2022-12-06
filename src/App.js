@@ -49,6 +49,7 @@ function Menu({display, handleClick}) {
 }
 
 function App() {
+
   const navigate = useNavigate();
   const handleClick = (e) => {
     navigate('/' + e.currentTarget.name);
@@ -61,7 +62,7 @@ function App() {
   const [portraits, setPortraits] = useState([]);
 
   const [headers, setHeaders] = useState({});
-  const onScroll = useCallback(() => {
+  const changeTop = useCallback(() => {
     const { header, menu, clone } = headers;
 
     if(!header || !menu || !clone) return;
@@ -72,7 +73,8 @@ function App() {
     if (window.scrollY > sticky && clone.style.display === "none") clone.style.display = "flex";
     else if(window.scrollY < sticky+clone.offsetTop && clone.style.display !== "none") clone.style.display = "none";
   }, [headers]);
-  window.onscroll = onScroll;
+  window.onscroll = changeTop;
+  window.onresize = changeTop;
 
   useEffect(() => {
     const header = document.getElementsByClassName("apptop")[0];
@@ -121,8 +123,8 @@ function App() {
               <Route index element={<Character/>}/>
               {portraits.map((el, index) => 
                 (
-                  <Route path={el.Type.toLowerCase()} element={<PrivateRoute errorMessage={dialogs.error.login}>
-                    <Article type={el.Type}/>
+                  <Route path={el.type.toLowerCase()} element={<PrivateRoute errorMessage={dialogs.error.login}>
+                    <Article type={el.type}/>
                   </PrivateRoute>} key={index}/>
                 )
               )}
@@ -176,17 +178,19 @@ function App() {
 
 function Dropdown({ isAdmin }) {
   const logout = useLogout();
-  const { setShowConfirm, confirm, setMessage, setConfirm } = useConfirm();
+  const { setShowConfirm, showConfirm, confirm, setMessage, setConfirm, subject, setSubject } = useConfirm();
 
   const handleSignOut = useCallback(() => {
     setMessage(dialogs.confirm.signout);
+    setSubject('signout');
     setShowConfirm(true);
-  }, [setMessage, setShowConfirm]);
+  }, [setMessage, setShowConfirm, setSubject]);
 
   useEffect(() => {
-    if(confirm) logout();
+    if(confirm && subject === 'signout') logout();
+    if(!showConfirm) setSubject('');
     setConfirm(false);
-  }, [confirm, logout, setConfirm]);
+  }, [confirm, logout, setConfirm, subject, setSubject, showConfirm]);
 
   return (
     <div className="btn-group">
