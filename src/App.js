@@ -8,7 +8,6 @@ import Contact from './pages/Contact';
 import React, { useCallback, useEffect, useState } from 'react';
 import Modals from './modals/Modals';
 import Article from './pages/Article';
-import Cart from './pages/Cart';
 import PrivateRoute from './components/PrivateRoute';
 import dialogs from './dialogs';
 import { useLogout, useSession } from './contexts/AuthProvider';
@@ -16,6 +15,9 @@ import { Profile, EditProfile, Security } from './pages/Profile';
 import { useConfirm } from './contexts/DialogProvider';
 import * as articlesApi from './api/articles';
 import { Administration, Dashboard, Orders, Customers } from './pages/Admin';
+import CartPage, { Cart } from './pages/Cart';
+import Checkout from './pages/Checkout';
+import { MyOrders } from './pages/Orders';
 
 function Menu({display, handleClick}) {
   return (
@@ -133,6 +135,7 @@ function App() {
           <Route path='about' element={<About/>}/>
           <Route path='terms' element={<TermsOfService/>}/>
           <Route path='contact' element={<Contact/>}/>
+          <Route path='orders' element={<PrivateRoute errorMessage={dialogs.error.login}><MyOrders/></PrivateRoute>}/>
           <Route path='profile' element={<PrivateRoute errorMessage={dialogs.error.login}><Profile /></PrivateRoute>}>
             <Route index element={<EditProfile user={user}/>}/>
             <Route path='security' element={<Security user={user}/>}/>
@@ -142,7 +145,10 @@ function App() {
             <Route path='orders' element={<Orders/>}/>
             <Route path='customers' element={<Customers/>}/>
           </Route>
-          <Route path='cart' element={<PrivateRoute errorMessage={dialogs.error.login}><Cart/></PrivateRoute>}/>
+          <Route path='cart' element={<PrivateRoute errorMessage={dialogs.error.login}><CartPage/></PrivateRoute>}>
+            <Route index element={<Cart/>}/>
+            <Route path='checkout' element={<Checkout/>}/>
+          </Route>
         </Routes>
       </div>
       <div className="appfooter">
@@ -199,7 +205,7 @@ function Dropdown({ isAdmin }) {
       </button>
       <div className="dropdown-menu">
         <Link className="dropdown-item icon-text" to="/profile"><div><i className="bi bi-person"/></div> <div>Profile</div></Link>
-        <Link className="dropdown-item icon-text" to="/"><div><i className="bi bi-card-checklist"/></div> <div>My Orders</div></Link>
+        <Link className="dropdown-item icon-text" to="/orders"><div><i className="bi bi-card-checklist"/></div> <div>My Orders</div></Link>
         <Link className="dropdown-item icon-text" to="/administration" hidden={!isAdmin}><div><i className="bi bi-person-plus"/></div> <div>Administration</div></Link>
         <span className="dropdown-item icon-text" onClick={handleSignOut}><div><i className="bi bi-box-arrow-left"/></div> <div>Sign out</div></span>
       </div>

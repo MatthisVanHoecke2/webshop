@@ -255,6 +255,49 @@ transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will 
   vertical-align: middle;
 }
 
+.checkout {
+  font-family: "Roboto";
+}
+.checkout .container {
+  width: 50%;
+}
+.checkout .card, .checkout .card-body {
+  width: fit-content;
+}
+.checkout .card-img {
+  max-height: 50px; 
+  object-fit: contain;
+}
+.checkout .card-body {
+  padding: min(5px, 0.5vw);
+}
+.checkout .table tbody tr {
+  vertical-align: middle;
+}
+.checkout .table tr td:last-child {
+  text-align: right;
+}
+.checkout .table {
+  text-align: left;
+  font-weight: bold;
+  
+}
+.checkout .table, .checkout .btn {
+  margin-bottom: 4vw;
+}
+.checkout .row {
+  height: 100%;
+}
+.checkout .table {
+  font-size: min(15px, 3vw);
+}
+.checkout .table tfoot tr:last-child {
+  font-size: min(20px, 3.5vw);
+}
+.checkout .table tfoot tr:last-child td:last-child {
+  font-size: min(24px, 4vw);
+}
+
 .appbanner {
   background-color: #C7F2E3;
 }

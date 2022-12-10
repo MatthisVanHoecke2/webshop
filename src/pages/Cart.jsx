@@ -7,8 +7,14 @@ import * as articlesApi from "../api/articles";
 import dialogs from "../dialogs.json";
 import { useSession } from "../contexts/AuthProvider";
 import { calculatePrice } from "../components/GeneralMethods";
+import { Outlet } from "react-router";
+import { Link } from "react-router-dom";
 
-export default function Cart() {
+export default function CartPage() {
+  return (<Outlet/>);
+}
+
+export function Cart() {
   return (
     <>
     <div className="editpage cart">
@@ -104,7 +110,7 @@ function Table() {
           ))}
         </tbody>
       </table>
-      <div style={{display: "flex", justifyContent: "space-between"}}><Button size="lg" variant="danger" onClick={clearCart}>Clear</Button><Button size="lg" variant="primary">Checkout</Button></div>
+      <div style={{display: "flex", justifyContent: "space-between"}}><Button size="lg" variant="danger" onClick={clearCart}>Clear</Button><Link to="/cart/checkout" className="btn btn-lg btn-primary">Checkout</Link></div>
     </div>}
     {orders.length === 0 && <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "5rem", color: "gray"}}><label>Nothing to see here</label></div>}
     </>
@@ -133,7 +139,7 @@ function TableItem({ data, deleteItem, showDescription, articles }) {
         <td><img className="img-fluid" src={imageUrl} alt=""></img></td>
         <td><input className="form-check-input" type="checkbox" checked={detailed} disabled={true}/></td>
         <td>{article?.name === background?.name ? '-' : (characters ?? 0)+1}</td>
-        <td>{price}</td>
+        <td>${price}</td>
         <td>{article?.name}</td>
         <td><Button variant="secondary" onClick={() => deleteItem(index)}>Delete</Button></td>
       </tr>

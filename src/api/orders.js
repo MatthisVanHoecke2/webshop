@@ -1,7 +1,13 @@
 import {axios} from '.';
+import { formatDate } from '../components/GeneralMethods';
 
 export const getAll = async () => {
   const { data } = await axios.get('orders');
+  return data.items;
+}
+
+export const getByUserId = async (id) => {
+  const { data } = await axios.get(`orders/user/${id}`);
   return data.items;
 }
 
@@ -23,4 +29,13 @@ export const countPending = async () => {
 export const getRecent = async () => {
   const { data } = await axios.get('orders/recent');
   return data.items;
+}
+
+export const create = async ({orderData, orderlinesData}) => {
+  const { data } = await axios.post('orders/create', {
+    orderData,
+    orderlinesData
+  });
+  data.items[0]["date"] = formatDate(new Date(data.items[0].date));
+  return data.items[0];
 }

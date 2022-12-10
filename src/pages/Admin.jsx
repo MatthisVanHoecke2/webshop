@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import * as articlesApi from '../api/articles'
@@ -7,7 +7,7 @@ import * as usersApi from '../api/users';
 import * as orderlinesApi from '../api/orderlines';
 import { formatDate } from "../components/GeneralMethods";
 import config from '../config.json';
-import { useTokenCheck } from "../contexts/AuthProvider";
+import { useSession, useTokenCheck } from "../contexts/AuthProvider";
 import { Overlay, Tooltip } from "react-bootstrap";
 
 export function Administration() {
@@ -186,18 +186,18 @@ export function Customers() {
   );
 }
 
-export function Orders() {
+export function Orders({MyOrders}) {
   const [showOrder, setShowOrder] = useState(-1);
   const [orders, setOrders] = useState([]);
   const [articles, setArticles] = useState([]);
-
+  const { user } = useSession();
 
   const getData = useCallback(async () => {
-    const order = await ordersApi.getAll();
+    const order = MyOrders ? await ordersApi.getByUserId(user.id) : await ordersApi.getAll();
     setOrders(order);
     const article = await articlesApi.getAll();
     setArticles(article)
-  }, []);
+  }, [user, MyOrders]);
 
   useEffect(() => {
     getData();
@@ -224,7 +224,7 @@ export function Orders() {
   );
 }
 
-function Order({data, articles, showOrderState}) {
+const Order = memo(function Order({data, articles, showOrderState}) {
   const {showOrder, setShowOrder} = showOrderState;
   const [orderlines, setOrderlines] = useState([]);
 
@@ -258,12 +258,12 @@ function Order({data, articles, showOrderState}) {
       }
     </>
   );
-}
+});
 
-function Orderline({data}) {
-  const changeStatus = useCallback(async (e, id) => {
-    await orderlinesApi.saveOrderline({ id, status: e.currentTarget.value });
-  }, []);
+const Orderline = memo(function Orderline({data}) {
+  const changeStatus = useCallback(async (e) => {
+    await orderlinesApi.saveOrderline({ id: data.orderline, order: data.order, status: e.currentTarget.value });
+  }, [data]);
 
   return (
     <table>
@@ -272,7 +272,7 @@ function Orderline({data}) {
           <th>ItemID: {data.orderline}</th>
           <th colSpan={2}/>
           <th>
-            <select className="form-select form-select-sm" aria-label="select" defaultValue={data.status} onChange={(e) => changeStatus(e, data.orderline)}>
+            <select className="form-select form-select-sm" aria-label="select" defaultValue={data.status} onChange={(e) => changeStatus(e)}>
               <option value="In Queue">In Queue</option>
               <option value="In Progress">In Progress</option>
               <option value="Done">Done</option>
@@ -290,4 +290,4 @@ function Orderline({data}) {
       </tbody>
     </table>
   );
-}
+});

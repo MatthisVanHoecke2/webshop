@@ -42,14 +42,14 @@ export default memo(function Article({type}) {
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')));
   const { setShowInfo, setMessage } = useInfo();
 
-  const clearForm = () => {
+  const clearForm = useCallback(() => {
     setDescription('');
     setDetailed(false);
     setExtra(false);
     setExtraCharacter(1);
     setReference('');
     setTotal(article?.price);
-  }
+  }, [article]);
 
   const calculate = useCallback(() => {
     const amount = extra ? extraCharacter : 0;
@@ -70,7 +70,7 @@ export default memo(function Article({type}) {
     calculate();
   }, [articles, calculate])
 
-  const onSubmit = async (data) => {
+  const onSubmit = useCallback(async (data) => {
     delete data["totalprice"];
     delete data["extraCharacterCheck"];
     data["characters"] = data["characters"] ? parseInt(data["characters"]) : 0;
@@ -95,7 +95,7 @@ export default memo(function Article({type}) {
     setShowInfo(true);
 
     clearForm();
-  }
+  }, [article, cart, clearForm, setMessage, setShowInfo, user]);
 
   return (
     <div className="article">
