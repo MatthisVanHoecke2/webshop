@@ -2,7 +2,7 @@ import {axios} from '.';
 
 export const countAll = async () => {
   const { data } = await axios.get('users/count');
-  return data.items[0];
+  return data;
 };
 
 export const getAll = async () => {
@@ -16,14 +16,8 @@ export const getById = async (id) => {
 }
 
 export const getByToken = async () => {
-  try {
-    const { data } = await axios.get(`users/token`);
-    return data.items[0];
-  }
-  catch (error) {
-    console.log(error.response);
-    throw new Error(error.response.data);
-  }
+  const { data } = await axios.get(`users/token`);
+  return data.items[0];
 }
 
 export const login = async (user, password) => {
@@ -46,4 +40,5 @@ export const saveUser = async ({id, name, email, password}) => {
     }
   })
   return data;
+  
 };

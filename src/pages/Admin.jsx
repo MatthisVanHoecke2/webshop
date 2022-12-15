@@ -5,10 +5,11 @@ import * as articlesApi from '../api/articles'
 import * as ordersApi from '../api/orders';
 import * as usersApi from '../api/users';
 import * as orderlinesApi from '../api/orderlines';
-import { formatDate } from "../components/GeneralMethods";
+import { formatDate, getErrorMessage } from "../components/GeneralMethods";
 import config from '../config.json';
 import { useSession, useTokenCheck } from "../contexts/AuthProvider";
 import { Overlay, Tooltip } from "react-bootstrap";
+import { useMessage } from "../contexts/DialogProvider";
 
 export function Administration() {
 
@@ -31,7 +32,7 @@ export function Administration() {
   );
 }
 
-export function Dashboard() {
+const DashboardComponent = memo(function Dashboard() {
   const [ordersCount, setOrdersCount] = useState(0);
   const [completedOrdersCount, setCompletedOrdersCount] = useState(0);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
@@ -135,6 +136,9 @@ export function Dashboard() {
     
     </>
   );
+});
+export function Dashboard() {
+  return (<DashboardComponent/>);
 }
 
 export function Customers() {
@@ -186,7 +190,7 @@ export function Customers() {
   );
 }
 
-export function Orders({MyOrders}) {
+const OrdersComponent = memo(function Orders({MyOrders}) {
   const [showOrder, setShowOrder] = useState(-1);
   const [orders, setOrders] = useState([]);
   const [articles, setArticles] = useState([]);
@@ -222,24 +226,34 @@ export function Orders({MyOrders}) {
     </div>
     </>
   );
+});
+export function Orders(params) {
+  return <OrdersComponent/>;
 }
 
 const Order = memo(function Order({data, articles, showOrderState}) {
   const {showOrder, setShowOrder} = showOrderState;
   const [orderlines, setOrderlines] = useState([]);
+  const {setMessage, setMessageTitle, setShowMessage} = useMessage();
 
   const toggleOrder = useCallback(async (e) => {
     const id = parseInt(e.currentTarget.id);
     if(showOrder !== id) {
       setShowOrder(id);
-      const orderline = await orderlinesApi.getByOrderId(id);
-      setOrderlines(orderline);
+      await orderlinesApi.getByOrderId(id).then((orderline) => {
+        setOrderlines(orderline);
+      }).catch((err) => {
+        const error = getErrorMessage(err);
+        setMessageTitle('Error');
+        setMessage(error.message);
+        setShowMessage(true);
+      });
     }
     else {
       setShowOrder(-1);
       setOrderlines([]);
     }
-  }, [showOrder, setShowOrder]);
+  }, [showOrder, setShowOrder, setMessage, setShowMessage, setMessageTitle]);
 
   return (
     <>

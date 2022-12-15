@@ -19,6 +19,9 @@
     },
     "checkout": {
       "payed": "Your order has been registered."
+    },
+    "profile": {
+      "updated": "Your profile has been updated."
     }
   }
 }

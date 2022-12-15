@@ -15,6 +15,27 @@ export function formatDate(date) {
 
   return `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
 }
+export const getErrorMessage = (err) => {
+	const data = err.response.data.details
+	if(data) {
+		let type, message;
+		if(data.params) {
+			type = Object.keys(data.params)[0]
+			message = data.params[type];
+			return {type, message};
+		}
+		if(data.body) {
+			type = Object.keys(data.body)[0]
+			message = data.body[type];
+			return {type, message};
+		}
+		if(data.headers) {
+			type = Object.keys(data.headers)[0]
+			message = data.headers[type];
+			return {type, message};
+		}
+	}
+}
 
 export function calculatePrice(article, detailedPrice, data) {
   const {characters, detailed} = data;

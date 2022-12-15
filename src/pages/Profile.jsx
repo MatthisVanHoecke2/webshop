@@ -4,6 +4,9 @@ import { Outlet } from "react-router";
 import { Link } from "react-router-dom";
 import { LabelInput } from "../components/FormComponents";
 import * as usersApi from "../api/users";
+import { useMessage } from "../contexts/DialogProvider";
+import dialogs from "../dialogs.json";
+import { getErrorMessage } from "../components/GeneralMethods";
 
 export function Profile() {
 
@@ -27,12 +30,20 @@ export function Profile() {
 
 export function EditProfile({ user }) {
   const {register, handleSubmit, formState: { errors }} = useForm();
+  const { setShowMessage, setMessage, setMessageTitle } = useMessage();
 
   const onSubmit = async (data) => {
     data["id"] = user.id;
-    const success = await usersApi.saveUser(data);
-
-    if(success) console.log(success);
+    await usersApi.saveUser(data).then(() => {
+      setMessageTitle('Info');
+      setMessage(dialogs.info.profile.updated);
+      setShowMessage(true);
+    }).catch((err) => {
+      const error = getErrorMessage(err);
+      setMessageTitle('Error');
+      setMessage(error.message);
+      setShowMessage(true);
+    })
   }
 
   const validationRules = {

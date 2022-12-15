@@ -13,17 +13,17 @@ export const getByUserId = async (id) => {
 
 export const countAll = async () => {
   const { data } = await axios.get('orders/count');
-  return data.items[0];
+  return data;
 }
 
 export const countCompleted = async () => {
   const { data } = await axios.get(`orders/count/completed`);
-  return data.items[0];
+  return data;
 }
 
 export const countPending = async () => {
   const { data } = await axios.get(`orders/count/pending`);
-  return data.items[0];
+  return data;
 }
 
 export const getRecent = async () => {

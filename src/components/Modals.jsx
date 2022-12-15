@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import {Modal, Button} from 'react-bootstrap';
 import { useForm, FormProvider } from 'react-hook-form';
-import { LabelInput } from '../components/FormComponents';
+import { LabelInput } from './FormComponents';
 import { useLogin, useSession, useSignUp } from '../contexts/AuthProvider';
-import { useConfirm, useError, useInfo } from '../contexts/DialogProvider';
+import { useConfirm, useMessage } from '../contexts/DialogProvider';
 
 export default function Modals({showModal, setShowModal}) {
   const { showSignIn, showSignUp } = showModal;
@@ -12,8 +12,7 @@ export default function Modals({showModal, setShowModal}) {
     <>
       <SignUp show={showSignUp} handleClose={() => setShowSignUp(false)}/>
       <SignIn show={showSignIn} handleClose={() => setShowSignIn(false)}/>
-      <Error/>
-      <Info/>
+      <Message/>
       <Confirm/>
     </>
   );
@@ -131,12 +130,14 @@ function SignIn({show, handleClose}) {
                 label="Username or email"
                 name="user"
                 type="text"
+                data-cy="sign_in_user"
                 validationRules={validationRules}
               />
               <LabelInput
                 label="Password"
                 name="pass"
                 type="password"
+                data-cy="sign_in_pass"
                 validationRules={validationRules}
               />          
               {
@@ -151,7 +152,7 @@ function SignIn({show, handleClose}) {
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="primary" type='submit' disabled={loading}>
+            <Button variant="primary" type='submit' disabled={loading} data-cy="sign_in_submit">
               Sign in
             </Button>
           </Modal.Footer>
@@ -161,24 +162,11 @@ function SignIn({show, handleClose}) {
   );
 }
 
-export function Info() {
-  const { showInfo, setShowInfo, message } = useInfo();
-  return (<Modal show={showInfo} onHide={() => setShowInfo(false)}>
+export function Message() {
+  const { showMessage, setShowMessage, message, messageTitle } = useMessage();
+  return (<Modal show={showMessage} onHide={() => setShowMessage(false)}>
       <Modal.Header closeButton>
-        <Modal.Title>Info</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <label>{message}</label>
-      </Modal.Body>
-  </Modal>);
-}
-
-export function Error() {
-  const { showError, setShowError, message } = useError();
-
-  return (<Modal show={showError} onHide={() => setShowError(false)}>
-      <Modal.Header closeButton>
-        <Modal.Title>Error</Modal.Title>
+        <Modal.Title data-cy="notification">{messageTitle}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <label>{message}</label>

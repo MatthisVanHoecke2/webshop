@@ -11,15 +11,13 @@ import { DialogProvider } from './contexts/DialogProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <DialogProvider>
-    <AuthProvider>
-      <BrowserRouter>
-        <App/>
-      </BrowserRouter>
-    </AuthProvider>
-    </DialogProvider>
-  </React.StrictMode>
+  <DialogProvider>
+  <AuthProvider>
+    <BrowserRouter>
+      <App/>
+    </BrowserRouter>
+  </AuthProvider>
+  </DialogProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

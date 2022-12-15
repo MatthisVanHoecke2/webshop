@@ -6,7 +6,7 @@ import About from './pages/About';
 import TermsOfService from './pages/TermsOfService';
 import Contact from './pages/Contact';
 import React, { useCallback, useEffect, useState } from 'react';
-import Modals from './modals/Modals';
+import Modals from './components/Modals';
 import Article from './pages/Article';
 import PrivateRoute from './components/PrivateRoute';
 import dialogs from './dialogs';
@@ -99,10 +99,10 @@ function App() {
         <nav className="navbar navbar-dark bg-info" id='topbar'>
           <Link to="/" className="navbar-brand">Dee Watter</Link>
           <form className="form-inline">
-            <button hidden={ready} name='signin' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignIn(true)}>
+            <button hidden={ready} name='signin' className="btn btn-secondary my-2 my-sm-0" type="button" data-cy="sign_in" onClick={() => setShowSignIn(true)}>
               <i className="bi bi-box-arrow-in-right"></i>Sign In
             </button>
-            <button hidden={ready} name='signup' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={() => setShowSignUp(true)}>
+            <button hidden={ready} name='signup' className="btn btn-secondary my-2 my-sm-0" type="button" data-cy="sign_up" onClick={() => setShowSignUp(true)}>
               <i className="bi bi-person-plus-fill"></i>Sign Up
             </button>
             {ready && <Dropdown isAdmin={user ? user.isAdmin : false}/>}
@@ -113,7 +113,7 @@ function App() {
         </nav>
         <Menu display="none" handleClick={handleClick}/>
       </div>
-      <div className='appbanner'><img src={require('./resources/images/banner.png')} alt='banner' /></div>
+      <div className='appbanner'><img src={`${process.env.PUBLIC_URL}/resources/images/banner.png`} alt='banner' /></div>
       <Menu display="flex" handleClick={handleClick}/>
       <div className="appcontent">
         <Routes>

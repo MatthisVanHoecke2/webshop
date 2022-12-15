@@ -5,7 +5,7 @@ import { Button } from "react-bootstrap";
 import { FormProvider, useForm } from "react-hook-form";
 import * as articlesApi from "../api/articles";
 import { CheckboxInput, LabelInput, TextareaInput } from "../components/FormComponents";
-import { useInfo } from "../contexts/DialogProvider";
+import { useMessage } from "../contexts/DialogProvider";
 import { useSession } from "../contexts/AuthProvider";
 import dialogs from "../dialogs.json";
 import { calculatePrice } from "../components/GeneralMethods";
@@ -40,7 +40,7 @@ export default memo(function Article({type}) {
   const { user } = useSession();
 
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')));
-  const { setShowInfo, setMessage } = useInfo();
+  const { setShowMessage, setMessage } = useMessage();
 
   const clearForm = useCallback(() => {
     setDescription('');
@@ -92,10 +92,10 @@ export default memo(function Article({type}) {
     setCart(cartArray);
     localStorage.setItem("cart", JSON.stringify(cartArray));
     setMessage(dialogs.info.article.added);
-    setShowInfo(true);
+    setShowMessage(true);
 
     clearForm();
-  }, [article, cart, clearForm, setMessage, setShowInfo, user]);
+  }, [article, cart, clearForm, setMessage, setShowMessage, user]);
 
   return (
     <div className="article">

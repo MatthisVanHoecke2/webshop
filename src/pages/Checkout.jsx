@@ -3,9 +3,9 @@ import { useState } from "react";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import * as articlesApi from "../api/articles";
-import { calculatePrice } from "../components/GeneralMethods";
+import { calculatePrice, getErrorMessage } from "../components/GeneralMethods";
 import { useSession } from "../contexts/AuthProvider";
-import { useError, useInfo } from "../contexts/DialogProvider";
+import { useMessage } from "../contexts/DialogProvider";
 import dialogs from "../dialogs.json";
 import * as ordersApi from "../api/orders";
 
@@ -14,8 +14,7 @@ export default function Checkout() {
   const [total, setTotal] = useState(0);
   const { user } = useSession();
   const navigate = useNavigate();
-  const { setMessage, setShowError } = useError();
-  const { setShowInfo } = useInfo();
+  const { setMessage, setShowMessage, setMessageTitle } = useMessage();
 
   useEffect(() => {
     const getData = async () => {
@@ -23,7 +22,8 @@ export default function Checkout() {
       if(!order) {
         navigate('/');
         setMessage(dialogs.error.checkout.noitems);
-        setShowError(true);
+        setMessageTitle('Error');
+        setShowMessage(true);
       }
       else {
         const articlesA = await articlesApi.getAll();
@@ -43,19 +43,25 @@ export default function Checkout() {
       }
     }
     getData();
-  }, [user, navigate, setMessage, setShowError]);
+  }, [user, navigate, setMessage, setShowMessage, setMessageTitle]);
 
   const handleClick = async () => {
-    await ordersApi.create({orderData: {user: user.id, price: total}, orderlinesData: orders});
+    await ordersApi.create({orderData: {user: user.id, price: total}, orderlinesData: orders}).then(() => {
+      setMessageTitle('Info');
+      setMessage(dialogs.info.checkout.payed);
+      setShowMessage(true);
+    }).catch((err) => {
+      const error = getErrorMessage(err);
+      setMessageTitle('Error');
+      setMessage(error.message);
+      setShowMessage(true);
+    })
 
     setOrders([]); //clear variable
     const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
     cart?.splice(cart.indexOf(el => el.user === user.id), 1);
     localStorage.setItem('cart', JSON.stringify(cart)); //set cart
     navigate('/');
-
-    setMessage(dialogs.info.checkout.payed);
-    setShowInfo(true);
   }
 
   return (
