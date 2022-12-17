@@ -26,7 +26,12 @@ export default function Checkout() {
         setShowMessage(true);
       }
       else {
-        const articlesA = await articlesApi.getAll();
+        const articlesA = await articlesApi.getAll().catch((err) => {
+          const error = getErrorMessage(err);
+          setMessageTitle('Error');
+          setMessage(error.message);
+          setShowMessage(true);
+        });
 
         let totalPrice = 0;
         order.forEach(ord => {

@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { useFormContext } from "react-hook-form";
 
-export function LabelInput({ label, name, type, validationRules, hidden, lblclass, inputclass, ...rest }) {
+const LabelInput = memo(function LabelInput({ label, name, type, validationRules, hidden, lblclass, inputclass, ...rest }) {
   const {register, errors} = useFormContext();
 
   const hasError = name in errors;
@@ -22,9 +23,9 @@ export function LabelInput({ label, name, type, validationRules, hidden, lblclas
       }
     </div>
   );
-}
+});
 
-export function TextareaInput({ label, name, validationRules, lblclass, ...rest }) {
+const TextareaInput = memo(function TextareaInput({ label, name, validationRules, lblclass, ...rest }) {
   const {register, errors} = useFormContext();
 
   const hasError = name in errors;
@@ -45,9 +46,9 @@ export function TextareaInput({ label, name, validationRules, lblclass, ...rest 
       }
     </div>
   );
-}
+});
 
-export function CheckboxInput({ label, name, validationRules, lblclass, ...rest }) {
+const CheckboxInput = memo(function CheckboxInput({ label, name, validationRules, lblclass, ...rest }) {
   const {register, errors} = useFormContext();
 
   const hasError = name in errors;
@@ -69,4 +70,6 @@ export function CheckboxInput({ label, name, validationRules, lblclass, ...rest 
       }
     </div>
   );
-}
+});
+
+export { LabelInput, CheckboxInput, TextareaInput };

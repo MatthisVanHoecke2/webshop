@@ -16,24 +16,28 @@ export function formatDate(date) {
   return `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
 }
 export const getErrorMessage = (err) => {
-	const data = err.response.data.details
-	if(data) {
+	const data = err.response.data;
+	const details = err.response.data.details;
+	if(Object.keys(details).length > 0) {
 		let type, message;
-		if(data.params) {
-			type = Object.keys(data.params)[0]
-			message = data.params[type];
+		if(details.params) {
+			type = Object.keys(details.params)[0]
+			message = details.params[type];
 			return {type, message};
 		}
-		if(data.body) {
-			type = Object.keys(data.body)[0]
-			message = data.body[type];
+		if(details.body) {
+			type = Object.keys(details.body)[0]
+			message = details.body[type];
 			return {type, message};
 		}
-		if(data.headers) {
-			type = Object.keys(data.headers)[0]
-			message = data.headers[type];
+		if(details.headers) {
+			type = Object.keys(details.headers)[0]
+			message = details.headers[type];
 			return {type, message};
 		}
+	}
+	else if(data.message) {
+		return {message: data.message};
 	}
 }
 

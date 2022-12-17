@@ -12,12 +12,13 @@ import PrivateRoute from './components/PrivateRoute';
 import dialogs from './dialogs';
 import { useLogout, useSession } from './contexts/AuthProvider';
 import { Profile, EditProfile, Security } from './pages/Profile';
-import { useConfirm } from './contexts/DialogProvider';
+import { useConfirm, useMessage } from './contexts/DialogProvider';
 import * as articlesApi from './api/articles';
 import { Administration, Dashboard, Orders, Customers } from './pages/Admin';
 import CartPage, { Cart } from './pages/Cart';
 import Checkout from './pages/Checkout';
 import { MyOrders } from './pages/Orders';
+import { getErrorMessage } from './components/GeneralMethods';
 
 function Menu({display, handleClick}) {
   return (
@@ -58,6 +59,7 @@ function App() {
   }
 
   const { ready, user } = useSession();
+  const {setMessage, setShowMessage, setMessageTitle} = useMessage();
 
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
@@ -88,11 +90,18 @@ function App() {
     setHeaders({header, menu, clone});
 
     const getArticles = async () => {
-      const newArr = await articlesApi.getAllPortraits()
-      setPortraits(newArr);
+      await articlesApi.getAllPortraits().then((newArr) => {
+        setPortraits(newArr);
+      }).catch((err) => {
+        const error = getErrorMessage(err);
+        setMessageTitle('Error');
+        setMessage(error.message);
+        setShowMessage(true);
+      });
+      
     }
     getArticles();
-  }, []);
+  }, [setShowMessage, setMessageTitle, setMessage]);
   return (
     <div className="App">
       <div className='apptop'>
@@ -106,7 +115,7 @@ function App() {
               <i className="bi bi-person-plus-fill"></i>Sign Up
             </button>
             {ready && <Dropdown isAdmin={user ? user.isAdmin : false}/>}
-            <button hidden={!ready} name='cart' className="btn btn-secondary my-2 my-sm-0" type="button" onClick={handleClick}>
+            <button hidden={!ready} name='cart' className="btn btn-secondary my-2 my-sm-0" type="button" data-cy="cart" onClick={handleClick}>
               <i className="bi bi-cart-plus-fill"></i>
             </button>
           </form>
@@ -122,7 +131,7 @@ function App() {
             <Route index element={<Pricing/>}/>
             <Route path='background' element={<PrivateRoute errorMessage={dialogs.error.login} ><Article type={'Background'}/></PrivateRoute>}/>
             <Route path='character'>
-              <Route index element={<Character/>}/>
+              <Route index element={<Character portraits={portraits}/>}/>
               {portraits.map((el, index) => 
                 (
                   <Route path={el.type.toLowerCase()} element={<PrivateRoute errorMessage={dialogs.error.login}>
@@ -200,14 +209,14 @@ function Dropdown({ isAdmin }) {
 
   return (
     <div className="btn-group">
-      <button className="btn btn-secondary dropdown-toggle my-2 my-sm-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <button data-cy="user_dropdown" className="btn btn-secondary dropdown-toggle my-2 my-sm-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i className="bi bi-person-fill"></i>
       </button>
       <div className="dropdown-menu">
         <Link className="dropdown-item icon-text" to="/profile"><div><i className="bi bi-person"/></div> <div>Profile</div></Link>
         <Link className="dropdown-item icon-text" to="/orders"><div><i className="bi bi-card-checklist"/></div> <div>My Orders</div></Link>
         <Link className="dropdown-item icon-text" to="/administration" hidden={!isAdmin}><div><i className="bi bi-person-plus"/></div> <div>Administration</div></Link>
-        <span className="dropdown-item icon-text" onClick={handleSignOut}><div><i className="bi bi-box-arrow-left"/></div> <div>Sign out</div></span>
+        <span data-cy="sign_out" className="dropdown-item icon-text" onClick={handleSignOut}><div><i className="bi bi-box-arrow-left"/></div> <div>Sign out</div></span>
       </div>
     </div>
   );

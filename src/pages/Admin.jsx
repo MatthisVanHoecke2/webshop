@@ -14,7 +14,7 @@ import { useMessage } from "../contexts/DialogProvider";
 export function Administration() {
 
   return (
-    <div className="editpage admin">
+    <div className="editpage admin" data-cy="admin_page">
       <div className="edit-header">
         <h1>Administration</h1>
       </div>
@@ -32,27 +32,41 @@ export function Administration() {
   );
 }
 
-const DashboardComponent = memo(function Dashboard() {
+const Dashboard = memo(function Dashboard() {
   const [ordersCount, setOrdersCount] = useState(0);
   const [completedOrdersCount, setCompletedOrdersCount] = useState(0);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
   const [recentOrders, setRecentOrders] = useState([]);
+  const { setMessageTitle, setMessage,  setShowMessage} = useMessage();
 
   const checkToken = useTokenCheck();
 
   const getData = useCallback(async () => {
-    const count = await ordersApi.countAll();
-    setOrdersCount(count.count);
-    const recents = await ordersApi.getRecent();
-    setRecentOrders(recents);
-    const completed = await ordersApi.countCompleted();
-    setCompletedOrdersCount(completed.count);
-    const pending = await ordersApi.countPending();
-    setPendingOrdersCount(pending.count);
-    const users = await usersApi.countAll();
-    setUsersCount(users.count);
-  }, []);
+    await ordersApi.countAll().then((count) => {
+      setOrdersCount(count.count);
+      return ordersApi.getRecent();
+    })
+    .then((recents) => {
+      setRecentOrders(recents);
+      return ordersApi.countCompleted();
+    })
+    .then((completed) => {
+      setCompletedOrdersCount(completed.count);
+      return ordersApi.countPending();
+    })
+    .then((pending) => {
+      setPendingOrdersCount(pending.count);
+      return usersApi.countAll();
+    })
+    .then((users) => setUsersCount(users.count))
+    .catch((err) => {
+      const error = getErrorMessage(err);
+      setMessageTitle('Error');
+      setMessage(error.message);
+      setShowMessage(true);
+    });
+  }, [setMessage, setMessageTitle, setShowMessage]);
 
   useEffect(() => {
     let interval = -1;
@@ -137,21 +151,25 @@ const DashboardComponent = memo(function Dashboard() {
     </>
   );
 });
-export function Dashboard() {
-  return (<DashboardComponent/>);
-}
 
 export function Customers() {
   const [customers, setCustomers] = useState([]);
   const [target, setTarget] = useState(null);
+  const {setMessage, setMessageTitle, setShowMessage} = useMessage();
 
   useEffect(() => {
     const getData = async () => {
-      const customer = await usersApi.getAll();
-      setCustomers(customer);
+      await usersApi.getAll().then((customer) => {
+        setCustomers(customer);
+      }).catch((err) => {
+        const error = getErrorMessage(err);
+        setMessageTitle('Error');
+        setMessage(error.message);
+        setShowMessage(true);
+      });
     }
     getData();
-  }, []);
+  }, [setMessage, setMessageTitle, setShowMessage]);
 
   const clickEmail = (e) => {
     navigator.clipboard.writeText(e.currentTarget.innerHTML);
@@ -190,18 +208,34 @@ export function Customers() {
   );
 }
 
-const OrdersComponent = memo(function Orders({MyOrders}) {
+const Orders = memo(function Orders({MyOrders}) {
   const [showOrder, setShowOrder] = useState(-1);
   const [orders, setOrders] = useState([]);
   const [articles, setArticles] = useState([]);
   const { user } = useSession();
+  const {setMessage, setMessageTitle, setShowMessage} = useMessage();
 
   const getData = useCallback(async () => {
-    const order = MyOrders ? await ordersApi.getByUserId(user.id) : await ordersApi.getAll();
-    setOrders(order);
-    const article = await articlesApi.getAll();
-    setArticles(article)
-  }, [user, MyOrders]);
+    try {
+      const order = MyOrders ? await ordersApi.getByUserId(user.id) : await ordersApi.getAll();
+      setOrders(order);
+    }
+    catch(err) {
+      const error = getErrorMessage(err);
+      setMessageTitle('Error');
+      setMessage(error.message);
+      setShowMessage(true);
+    }
+    await articlesApi.getAll().then((article) => {
+      setArticles(article)
+    }).catch((err) => {
+      const error = getErrorMessage(err);
+      setMessageTitle('Error');
+      setMessage(error.message);
+      setShowMessage(true);
+    });
+    
+  }, [user, MyOrders, setShowMessage, setMessageTitle, setMessage]);
 
   useEffect(() => {
     getData();
@@ -209,7 +243,7 @@ const OrdersComponent = memo(function Orders({MyOrders}) {
 
   return (
     <>
-    <div className="table-container">
+    <div className="table-container" data-cy="orders_page">
       <table className="table table-borderless table-striped-reverse">
         <thead>
           <tr>
@@ -227,9 +261,6 @@ const OrdersComponent = memo(function Orders({MyOrders}) {
     </>
   );
 });
-export function Orders(params) {
-  return <OrdersComponent/>;
-}
 
 const Order = memo(function Order({data, articles, showOrderState}) {
   const {showOrder, setShowOrder} = showOrderState;
@@ -305,3 +336,5 @@ const Orderline = memo(function Orderline({data}) {
     </table>
   );
 });
+
+export { Dashboard, Orders };

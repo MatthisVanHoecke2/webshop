@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
 import { Button } from "react-bootstrap";
-import { useConfirm } from "../contexts/DialogProvider";
+import { useConfirm, useMessage } from "../contexts/DialogProvider";
 import * as articlesApi from "../api/articles";
 import dialogs from "../dialogs.json";
 import { useSession } from "../contexts/AuthProvider";
-import { calculatePrice } from "../components/GeneralMethods";
+import { calculatePrice, getErrorMessage } from "../components/GeneralMethods";
 import { Outlet } from "react-router";
 import { Link } from "react-router-dom";
 
@@ -17,7 +17,7 @@ export default function CartPage() {
 export function Cart() {
   return (
     <>
-    <div className="editpage cart">
+    <div className="editpage cart" data-cy="cart_page">
       <div className="edit-header">
         <h1>Cart</h1>
       </div>
@@ -36,6 +36,7 @@ function Table() {
   const [showDescription, setShowDescription] = useState(true);
   const { setShowConfirm, showConfirm, confirm, setConfirm, setMessage, subject, setSubject } = useConfirm();
   const { user } = useSession();
+  const { setMessageTitle, setShowMessage } = useMessage();
 
   const checkWindowSize = useCallback(() => {
     if(window.innerWidth < 992) setShowDescription(false);
@@ -81,13 +82,19 @@ function Table() {
 
   useEffect(() => {
     const getData = async () => {
-      const order = JSON.parse(localStorage.getItem('cart')).find(el => el.user === user.id)?.cart ?? [];
+      const order = JSON.parse(localStorage.getItem('cart'))?.find(el => el.user === user.id)?.cart ?? [];
       setOrders(order);
-      const article = await articlesApi.getAll();
-      setArticles(article);
+      await articlesApi.getAll().then((article) => {
+        setArticles(article);
+      }).catch((err) => {
+        const error = getErrorMessage(err);
+        setMessageTitle('Error');
+        setMessage(error.message);
+        setShowMessage(true);
+      });
     }
     getData();
-  }, [user]);
+  }, [user, setMessageTitle, setShowMessage, setMessage]);
 
   return (
     <>

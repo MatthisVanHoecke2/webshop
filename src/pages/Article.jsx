@@ -8,7 +8,7 @@ import { CheckboxInput, LabelInput, TextareaInput } from "../components/FormComp
 import { useMessage } from "../contexts/DialogProvider";
 import { useSession } from "../contexts/AuthProvider";
 import dialogs from "../dialogs.json";
-import { calculatePrice } from "../components/GeneralMethods";
+import { calculatePrice, getErrorMessage } from "../components/GeneralMethods";
 
 const validationRules = {
   description: {
@@ -40,7 +40,7 @@ export default memo(function Article({type}) {
   const { user } = useSession();
 
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')));
-  const { setShowMessage, setMessage } = useMessage();
+  const { setShowMessage, setMessage, setMessageTitle } = useMessage();
 
   const clearForm = useCallback(() => {
     setDescription('');
@@ -59,12 +59,18 @@ export default memo(function Article({type}) {
 
   useEffect(() => {
     const fetchArticles = async () => {
-      const data = await articlesApi.getAll();
-      setArticles(data);
+      await articlesApi.getAll().then((data) => {
+        setArticles(data);
+      }).catch((err) => {
+        const error = getErrorMessage(err);
+        setMessageTitle('Error');
+        setMessage(error.message);
+        setShowMessage(true);
+      });
     }
 
     fetchArticles();
-  }, []);
+  }, [setMessage, setShowMessage, setMessageTitle]);
 
   useEffect(() => {
     calculate();
@@ -92,24 +98,25 @@ export default memo(function Article({type}) {
     setCart(cartArray);
     localStorage.setItem("cart", JSON.stringify(cartArray));
     setMessage(dialogs.info.article.added);
+    setMessageTitle('Info');
     setShowMessage(true);
 
     clearForm();
-  }, [article, cart, clearForm, setMessage, setShowMessage, user]);
+  }, [article, cart, clearForm, setMessage, setShowMessage, user, setMessageTitle]);
 
   return (
-    <div className="article">
+    <div className="article" data-cy="article_page">
       <h1>{article?.name}</h1>
       <h2>Create Order</h2>
       <FormProvider onSubmit={handleSubmit} errors={errors} register={register}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextareaInput label="Description" name="description" lblclass="form-label lbl" rows="3" maxLength={300} validationRules={validationRules} value={description} onChange={e => setDescription(e.currentTarget.value)}/>
+          <TextareaInput data-cy="input_description" label="Description" name="description" lblclass="form-label lbl" rows="3" maxLength={300} validationRules={validationRules} value={description} onChange={e => setDescription(e.currentTarget.value)}/>
           <label className="form-label lbl">Attributes:</label>
-          <CheckboxInput label="Detailed background" name="detailed" validationRules={validationRules} checked={detailed} onClick={(e) => {setDetailed(e.currentTarget.checked); calculate();}}/>
+          <CheckboxInput data-cy="checkbox_detailed" label="Detailed background" name="detailed" validationRules={validationRules} checked={detailed} onClick={(e) => {setDetailed(e.currentTarget.checked); calculate();}}/>
           {type.toLowerCase() !== 'background' && <CharacterArticle handleChange={calculate} extra={extra} setExtra={setExtra} setExtraCharacter={setExtraCharacter} extraCharacter={extraCharacter}/>}
-          <LabelInput label="Reference:" name="imageUrl" type="text" lblclass="form-label lbl" validationRules={validationRules} placeholder="https://example.png" value={reference} onChange={e => setReference(e.currentTarget.value)}/>
-          <LabelInput label="Total:" name="totalprice" type="text" lblclass="form-label lbl" validationRules={validationRules} disabled value={`$${total}`}/>
-          <div className="d-grid justify-content-end"><Button type="submit">Save</Button></div>
+          <LabelInput data-cy="input_image" label="Reference:" name="imageUrl" type="text" lblclass="form-label lbl" validationRules={validationRules} placeholder="https://example.png" value={reference} onChange={e => setReference(e.currentTarget.value)}/>
+          <LabelInput data-cy="input_total" label="Total:" name="totalprice" type="text" lblclass="form-label lbl" validationRules={validationRules} disabled value={`$${total}`}/>
+          <div className="d-grid justify-content-end"><Button data-cy="button_submit" type="submit">Save</Button></div>
         </form>
       </FormProvider>
     </div>
@@ -124,8 +131,8 @@ const CharacterArticle = ({ handleChange, extra, setExtra, setExtraCharacter, ex
 
   return (
     <>
-      <CheckboxInput label="Extra character" name="extraCharacterCheck" validationRules={validationRules} checked={extra} onClick={handleCharacterClick}/>
-      <LabelInput label="Amount of extra characters" name="characters" type="number" hidden={!extra} validationRules={validationRules} min={1} max={3} value={extraCharacter} onChange={(e) => setExtraCharacter(parseInt(e.currentTarget.value))}/>
+      <CheckboxInput data-cy="checkbox_character" label="Extra character" name="extraCharacterCheck" validationRules={validationRules} checked={extra} onClick={handleCharacterClick}/>
+      <LabelInput data-cy="input_character" label="Amount of extra characters" name="characters" type="number" hidden={!extra} validationRules={validationRules} min={1} max={3} value={extraCharacter} onChange={(e) => setExtraCharacter(parseInt(e.currentTarget.value))}/>
     </>
   );
 }

@@ -45,16 +45,8 @@ const PriceCard = memo(({location, cardData}) => {
   );
 });
 
-const Character = () => {
-  const [characters, setCharacters] = useState([]);
-  useEffect(() => {
-    const fetchCharacters = async () => {
-      const data = await articlesApi.getAllPortraits();
-      setCharacters(data)
-    }
-    fetchCharacters();
-  }, [])
-  const newArr = [...characters];
+const Character = ({portraits}) => {
+  const newArr = [...portraits];
   newArr.splice(newArr.findIndex(el => el.type === 'base'), 1);
 
   return (

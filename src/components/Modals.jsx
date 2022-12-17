@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import {Modal, Button} from 'react-bootstrap';
 import { useForm, FormProvider } from 'react-hook-form';
 import { LabelInput } from './FormComponents';
 import { useLogin, useSession, useSignUp } from '../contexts/AuthProvider';
 import { useConfirm, useMessage } from '../contexts/DialogProvider';
 
-export default function Modals({showModal, setShowModal}) {
+export default memo(function Modals({showModal, setShowModal}) {
   const { showSignIn, showSignUp } = showModal;
   const { setShowSignIn, setShowSignUp } = setShowModal;
   return (
@@ -16,9 +16,9 @@ export default function Modals({showModal, setShowModal}) {
       <Confirm/>
     </>
   );
-}
+})
 
-function SignUp({show, handleClose}) {
+const SignUp = memo(function SignUp({show, handleClose}) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const signup = useSignUp();
 
@@ -52,7 +52,7 @@ function SignUp({show, handleClose}) {
   }
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal data-cy="sign_up_modal" show={show} onHide={handleClose}>
       <FormProvider onSubmit={handleSubmit} errors={errors} register={register} watch={watch}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Header closeButton>
@@ -60,24 +60,28 @@ function SignUp({show, handleClose}) {
           </Modal.Header>
           <Modal.Body>
               <LabelInput
+                data-cy="input_username"
                 label="Username"
                 name="user"
                 type="text"
                 validationRules={validationRules}
               />
               <LabelInput
+                data-cy="input_email"
                 label="Email address"
                 name="email"
                 type="email"
                 validationRules={validationRules}
               />
               <LabelInput
+                data-cy="input_password"
                 label="Create password"
                 name="pass"
                 type="password"
                 validationRules={validationRules}
               />
               <LabelInput
+                data-cy="input_confirm"
                 label="Confirm password"
                 name="passconfirm"
                 type="password"
@@ -88,7 +92,7 @@ function SignUp({show, handleClose}) {
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="primary" type='submit'>
+            <Button data-cy="sign_up_submit" variant="primary" type='submit'>
               Register
             </Button>
           </Modal.Footer>
@@ -96,9 +100,9 @@ function SignUp({show, handleClose}) {
       </FormProvider>
     </Modal>
   );
-}
+});
 
-function SignIn({show, handleClose}) {
+const SignIn = memo(function SignIn({show, handleClose}) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const login = useLogin();
   const { loading, error } = useSession();
@@ -160,9 +164,9 @@ function SignIn({show, handleClose}) {
       </FormProvider>
     </Modal>
   );
-}
+});
 
-export function Message() {
+const Message = memo(function Message() {
   const { showMessage, setShowMessage, message, messageTitle } = useMessage();
   return (<Modal show={showMessage} onHide={() => setShowMessage(false)}>
       <Modal.Header closeButton>
@@ -172,9 +176,9 @@ export function Message() {
         <label>{message}</label>
       </Modal.Body>
   </Modal>);
-}
+})
 
-export function Confirm() {
+const Confirm = memo(function Confirm() {
   const { showConfirm, setShowConfirm, message, setConfirm } = useConfirm();
 
   const handleClose = useCallback(() => {
@@ -198,9 +202,11 @@ export function Confirm() {
         <Button variant="secondary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleConfirm}>
+        <Button data-cy="confirm_modal_submit" variant="primary" onClick={handleConfirm}>
           Confirm
         </Button>
       </Modal.Footer>
   </Modal>);
-}
+});
+
+export {SignIn, SignUp, Message, Confirm};

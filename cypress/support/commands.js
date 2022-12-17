@@ -23,3 +23,33 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('goToHomePage', () => {
+  cy.visit('http://localhost:3000');
+});
+
+Cypress.Commands.add('login', () => {
+  cy.goToHomePage();
+  cy.clearLocalStorage();
+
+  Cypress.log({
+    displayName: 'login',
+    message: `Signing in as ${Cypress.env('auth_user')}`,
+  });
+
+  cy.request('POST', 'http://localhost:9000/api/users/login', {
+    user: Cypress.env('auth_user'),
+    password: Cypress.env('auth_password'),
+  })
+  .its('body')
+  .then(({token}) => {
+    cy.window()
+    .then((win) => {
+      win.localStorage.setItem(
+        `auth_token`,
+        token,
+      );
+      cy.reload();
+    });
+  })
+})
