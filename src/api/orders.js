@@ -32,7 +32,7 @@ export const getRecent = async () => {
 }
 
 export const create = async ({orderData, orderlinesData}) => {
-  const { data } = await axios.post('orders/create', {
+  const { data } = await axios.post('orders', {
     orderData,
     orderlinesData
   });
