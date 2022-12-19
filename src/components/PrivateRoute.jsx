@@ -19,7 +19,6 @@ export default function PrivateRoute({ children, errorMessage, requireAdmin }) {
 			}
 			else if((ready && requireAdmin && user?.isAdmin) || (ready && !requireAdmin)) {
 				setChild(children);
-				setShowMessage(false);
 			}
 		}
 	}, [children, errorMessage, navigate, ready, requireAdmin, setMessage, setShowMessage, setMessageTitle, user, loading]);

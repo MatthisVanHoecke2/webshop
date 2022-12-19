@@ -7,6 +7,7 @@ import * as usersApi from "../api/users";
 import { useMessage } from "../contexts/DialogProvider";
 import dialogs from "../dialogs.json";
 import { getErrorMessage } from "../components/GeneralMethods";
+import { useCallback, useState } from "react";
 
 export function Profile() {
 
@@ -31,9 +32,11 @@ export function Profile() {
 export function EditProfile({ user }) {
   const {register, handleSubmit, formState: { errors }} = useForm();
   const { setShowMessage, setMessage, setMessageTitle } = useMessage();
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data) => {
+  const onSubmit = useCallback(async (data) => {
     data["id"] = user.id;
+    setLoading(true);
     await usersApi.saveUser(data).then(() => {
       setMessageTitle('Info');
       setMessage(dialogs.info.profile.updated);
@@ -44,7 +47,8 @@ export function EditProfile({ user }) {
       setMessage(error.message);
       setShowMessage(true);
     })
-  }
+    setLoading(false);
+  }, [setMessage, setMessageTitle, setShowMessage, user]);
 
   const validationRules = {
     name: {
@@ -62,7 +66,7 @@ export function EditProfile({ user }) {
           <h3>Edit Profile</h3>
           <LabelInput label="Username" name="name" type="text" lblclass="edit-label" validationRules={validationRules} defaultValue={user?.name}/>
           <LabelInput label="Email" name="email" type="email" lblclass="edit-label" validationRules={validationRules} defaultValue={user?.email}/>
-          <Button variant="primary" type='submit'>Save</Button>
+          <Button variant="primary" type='submit' disabled={loading}>Save</Button>
         </form>
     </FormProvider>
     </>
@@ -71,10 +75,13 @@ export function EditProfile({ user }) {
 
 export function Security({ user }) {
   const {register, handleSubmit, formState: { errors }, watch} = useForm();
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
     data["id"] = user.id;
+    setLoading(true);
     const success = await usersApi.saveUser(data);
+    setLoading(false);
 
     if(success) console.log(success);
   }
@@ -102,7 +109,7 @@ export function Security({ user }) {
           <h3>Edit Password</h3>
           <LabelInput label="Password" name="password" type="password" lblclass="edit-label" validationRules={validationRules}/>
           <LabelInput label="Confirm Password" name="passconfirm" type="password" lblclass="edit-label" validationRules={validationRules}/>
-          <Button variant="primary" type='submit'>Save</Button>
+          <Button variant="primary" type='submit' disabled={loading}>Save</Button>
         </form>
     </FormProvider>
     </>

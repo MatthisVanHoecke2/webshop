@@ -41,6 +41,7 @@ export default function Checkout() {
           ord["name"] = article.name;
           ord["article"] = article.id;
           ord["price"] = calculatePrice(article, detailPrice, { characters, detailed });
+          ord["detailed"] = detailed ? 1 : 0;
           totalPrice += ord["price"];
         })
         setOrders(order);

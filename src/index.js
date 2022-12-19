@@ -12,11 +12,11 @@ import { DialogProvider } from './contexts/DialogProvider';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <DialogProvider>
-  <AuthProvider>
-    <BrowserRouter>
-      <App/>
-    </BrowserRouter>
-  </AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <App/>
+      </BrowserRouter>
+    </AuthProvider>
   </DialogProvider>
 );
 

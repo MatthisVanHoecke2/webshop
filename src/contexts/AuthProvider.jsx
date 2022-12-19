@@ -10,8 +10,8 @@ const AuthContext = createContext();
 const useAuth = () => useContext(AuthContext);
 
 export const useSession = () => {
-  const { loading, token, user, ready, error } = useAuth();
-  return { loading, token, user, ready, error };
+  const { setLoading, loading, token, user, ready, error } = useAuth();
+  return { setLoading, loading, token, user, ready, error };
 }
 
 export const useLogin = () => {
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async (userInput, password) => {
     try {
-      setLoading(false);
+      setLoading(true);
       setError('');
       const { token, user } = await usersApi.login(userInput, password);
       setToken(token);
@@ -73,7 +73,8 @@ export const AuthProvider = ({ children }) => {
       return true;
     }
     catch(error) {
-      setError('Login failed, please try again');
+      const err = getErrorMessage(error);
+      setError(err.message);
       return false;
     }
     finally {
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = useCallback(async (data) => {
     try {
-      setLoading(false);
+      setLoading(true);
       setError('');
       const { token, user } = await usersApi.saveUser({name: data.user, email: data.email, password: data.pass});
       setToken(token);
@@ -101,6 +102,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const value = useMemo(() => ({
+    setLoading,
     loading,
     error,
     token,

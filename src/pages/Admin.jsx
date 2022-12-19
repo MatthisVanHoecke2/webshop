@@ -254,7 +254,7 @@ const Orders = memo(function Orders({MyOrders}) {
           </tr>
         </thead>
         <tbody>
-          {orders && orders.map(order => <Order key={order.order} data={order} articles={articles} showOrderState={{showOrder, setShowOrder}}/>)}
+          {orders && orders.map(order => <Order key={order.order} MyOrders={MyOrders} data={order} articles={articles} showOrderState={{showOrder, setShowOrder}}/>)}
         </tbody>
       </table>
     </div>
@@ -262,7 +262,7 @@ const Orders = memo(function Orders({MyOrders}) {
   );
 });
 
-const Order = memo(function Order({data, articles, showOrderState}) {
+const Order = memo(function Order({MyOrders, data, articles, showOrderState}) {
   const {showOrder, setShowOrder} = showOrderState;
   const [orderlines, setOrderlines] = useState([]);
   const {setMessage, setMessageTitle, setShowMessage} = useMessage();
@@ -297,7 +297,7 @@ const Order = memo(function Order({data, articles, showOrderState}) {
       {showOrder === data.order && 
         <tr className="orderline">
           <td colSpan={4}>
-            {orderlines && orderlines.map((line) => <Orderline key={`${data.order}-${line.orderline}`} data={{name: articles.find((el) => el.id === line.article)?.name, ...line}}/>)}
+            {orderlines && orderlines.map((line) => <Orderline key={`${data.order}-${line.orderline}`} MyOrders={MyOrders} data={{name: articles.find((el) => el.id === line.article)?.name, ...line}}/>)}
           </td>
         </tr>
       }
@@ -305,10 +305,10 @@ const Order = memo(function Order({data, articles, showOrderState}) {
   );
 });
 
-const Orderline = memo(function Orderline({data}) {
+const Orderline = memo(function Orderline({data, MyOrders}) {
   const changeStatus = useCallback(async (e) => {
-    await orderlinesApi.saveOrderline({ id: data.orderline, order: data.order, status: e.currentTarget.value });
-  }, [data]);
+    if(!MyOrders) await orderlinesApi.saveOrderline({ id: data.orderline, order: data.order, status: e.currentTarget.value });
+  }, [data, MyOrders]);
 
   return (
     <table>
@@ -317,7 +317,7 @@ const Orderline = memo(function Orderline({data}) {
           <th>ItemID: {data.orderline}</th>
           <th colSpan={2}/>
           <th>
-            <select className="form-select form-select-sm" aria-label="select" defaultValue={data.status} onChange={(e) => changeStatus(e)}>
+            <select disabled={MyOrders} className="form-select form-select-sm" aria-label="select" defaultValue={data.status} onChange={(e) => changeStatus(e)}>
               <option value="In Queue">In Queue</option>
               <option value="In Progress">In Progress</option>
               <option value="Done">Done</option>
