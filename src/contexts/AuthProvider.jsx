@@ -2,6 +2,7 @@ import { useMemo, useContext, useCallback, useEffect, useState, createContext } 
 import * as usersApi from '../api/users';
 import config from '../config.json';
 import * as api from '../api';
+import { getErrorMessage } from "../components/GeneralMethods";
 
 const JWT_TOKEN_KEY = config.token_key;
 const AuthContext = createContext();
@@ -89,9 +90,9 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       return true;
     }
-    catch(error) {
-      console.log(error);
-      setError('Login failed, please try again');
+    catch(err) {
+      const error = getErrorMessage(err);
+      setError(error.message);
       return false;
     }
     finally {

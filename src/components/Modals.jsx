@@ -21,6 +21,7 @@ export default memo(function Modals({showModal, setShowModal}) {
 const SignUp = memo(function SignUp({show, handleClose}) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const signup = useSignUp();
+  const {loading, error} = useSession();
 
   const onSubmit = async (data) => {
     const success = await signup(data);
@@ -86,13 +87,20 @@ const SignUp = memo(function SignUp({show, handleClose}) {
                 name="passconfirm"
                 type="password"
                 validationRules={validationRules}
-              />                                  
+              />      
+              {
+						    error ? (
+							    <p className="text-red-500">
+								    {error}
+							    </p>
+						    ) : null
+					    }                                 
           </Modal.Body>
           <Modal.Footer className='justify-content-between'>
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button data-cy="sign_up_submit" variant="primary" type='submit'>
+            <Button data-cy="sign_up_submit" variant="primary" disabled={loading} type='submit'>
               Register
             </Button>
           </Modal.Footer>
