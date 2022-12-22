@@ -76,14 +76,22 @@ export function EditProfile({ user }) {
 export function Security({ user }) {
   const {register, handleSubmit, formState: { errors }, watch} = useForm();
   const [loading, setLoading] = useState(false);
-
+  const {setMessage, setMessageTitle, setShowMessage} = useMessage();
+  
   const onSubmit = async (data) => {
     data["id"] = user.id;
     setLoading(true);
-    const success = await usersApi.saveUser(data);
+    await usersApi.saveUser(data).then(() => {
+      setMessageTitle('Info');
+      setMessage(dialogs.info.profile.updated);
+      setShowMessage(true);
+    }).catch((err) => {
+      const error = getErrorMessage(err);
+      setMessageTitle('Error');
+      setMessage(error.message);
+      setShowMessage(true);
+    });
     setLoading(false);
-
-    if(success) console.log(success);
   }
 
   const validationRules = {

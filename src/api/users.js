@@ -12,12 +12,12 @@ export const getAll = async () => {
 
 export const getById = async (id) => {
   const { data } = await axios.get(`users/${id}`);
-  return data.items[0];
+  return data.items;
 }
 
 export const getByToken = async () => {
   const { data } = await axios.get(`users/token`);
-  return data.items[0];
+  return data.items;
 }
 
 export const login = async (user, password) => {

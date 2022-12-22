@@ -35,7 +35,7 @@ export default function Checkout() {
 
         let totalPrice = 0;
         order.forEach(ord => {
-          const article = articlesA.find(el => el.type === ord.type || el.type?.toLowerCase() === ord.name?.toLowerCase());
+          const article = articlesA.find(el => (el.type && el.type === ord.type) || ord.type.toLowerCase() === el.name?.toLowerCase());
           const detailPrice = articlesA.find(el => el.name.toLowerCase() === 'background')?.extra;
           const { characters, detailed } = ord;
           ord["name"] = article.name;

@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const checkToken = useCallback(() => {
-    return usersApi.getByToken().then(user => setUser(user)).catch(() => logout()).finally(() => setLoading(false));
+    return usersApi.getByToken().then(user => setUser(user)).catch(() => {logout()}).finally(() => setLoading(false));
   }, [logout]);
 
   useEffect(() => {

@@ -20,14 +20,14 @@ import Checkout from './pages/Checkout';
 import { MyOrders } from './pages/Orders';
 import { getErrorMessage } from './components/GeneralMethods';
 
-function Menu({display, handleClick}) {
+function Menu({display, handleClick, isClone}) {
   return (
     <div className='appmenu' style={{display: display}}>
         <nav className="navbar navbar-expand-lg navbar-dark justify-content-center">
-          <button className="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+          <button className="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target={isClone ? "#clone" : "#navbarTogglerDemo01"} aria-controls={isClone ? "clone" : "navbarTogglerDemo01"} aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
+          <div className="collapse navbar-collapse" id={isClone ? "clone" : "navbarTogglerDemo01"}>
             <ul className="navbar-nav mr-auto mt-2 mt-lg-0 justify-content-center align-items-center">
               <li className="nav-item">
                 <button className="btn my-2 my-sm-0" type="button" onClick={handleClick} name=''>Home</button>
@@ -64,6 +64,7 @@ function App() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [portraits, setPortraits] = useState([]);
+  const [display, setDisplay] = useState('none');
 
   const [headers, setHeaders] = useState({});
   const changeTop = useCallback(() => {
@@ -73,10 +74,14 @@ function App() {
     const sticky = menu.offsetTop-header.clientHeight;
 
     const toggleButton = menu.firstChild.firstChild;
+    const cloneButton = clone.firstChild.firstChild;
+    toggleButton.blur();
+    cloneButton.blur();
     if(!toggleButton.classList.contains("collapsed")) toggleButton.click();
-    if (window.scrollY > sticky && clone.style.display === "none") clone.style.display = "flex";
-    else if(window.scrollY < sticky+clone.offsetTop && clone.style.display !== "none") clone.style.display = "none";
-  }, [headers]);
+    if(!cloneButton.classList.contains("collapsed")) cloneButton.click();
+    if (window.scrollY > sticky && display === "none") setDisplay("flex");
+    else if(window.scrollY < sticky+menu.clientHeight && display === "flex") setDisplay("none");
+  }, [headers, display]);
   window.onscroll = changeTop;
   window.onresize = changeTop;
 
@@ -120,10 +125,10 @@ function App() {
             </button>
           </form>
         </nav>
-        <Menu display="none" handleClick={handleClick}/>
+        <Menu display={display} handleClick={handleClick} isClone={true}/>
       </div>
       <div className='appbanner'><img src={`${process.env.PUBLIC_URL}/resources/images/banner.png`} alt='banner' /></div>
-      <Menu display="flex" handleClick={handleClick}/>
+      <Menu display={'flex'} handleClick={handleClick} isClone={false}/>
       <div className="appcontent">
         <Routes>
           <Route index element={<Home/>}/>

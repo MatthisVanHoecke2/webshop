@@ -52,9 +52,8 @@ export default memo(function Article({type}) {
   }, [article]);
 
   const calculate = useCallback(() => {
-    const amount = extra ? extraCharacter : 0;
+    const amount = !extra && article?.name !== 'Background' ? 1 : extra ? extraCharacter+1 : 0;
     setTotal(calculatePrice(article, parseInt(detailedPrice), {characters: amount, detailed}));
-    ;
   }, [article, detailedPrice, extraCharacter, extra, detailed]);
 
   useEffect(() => {
@@ -79,7 +78,7 @@ export default memo(function Article({type}) {
   const onSubmit = useCallback(async (data) => {
     delete data["totalprice"];
     delete data["extraCharacterCheck"];
-    data["characters"] = data["characters"] ? parseInt(data["characters"]) : 0;
+    data["characters"] = !data["characters"] ? 0 : !extra && article.name !== 'Background' ? 1 : parseInt(data["characters"])+1;
     data["type"] = article.type ?? article.name.toLowerCase();
 
     let cartArray = [];
@@ -102,7 +101,7 @@ export default memo(function Article({type}) {
     setShowMessage(true);
 
     clearForm();
-  }, [article, cart, clearForm, setMessage, setShowMessage, user, setMessageTitle]);
+  }, [article, cart, clearForm, setMessage, setShowMessage, user, setMessageTitle, extra]);
 
   return (
     <div className="article" data-cy="article_page">
