@@ -1,13 +1,13 @@
 # Dee Watter Webshop React App
 
-##Description
+## Description
 A front-end static website meant to automate custom orders made by customers who want to commission Dee Watter. This site will allow customers to create orders without needing to contact the artist themselves. It also allows the artist to get an overview of all the orders as well as update the orders' statuses.
 
-##Requirements
+## Requirements
 - [Yarn](https://yarnpkg.com)
 
-##Startup
+## Startup
 - yarn start
 
-##Tests
+## Tests
 - npx cypress open
